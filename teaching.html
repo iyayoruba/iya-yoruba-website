@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Publications — Ìyá Yorùbá</title>
+<link rel="stylesheet" href="css/style.css"/>
+<style>
+/* BOOKS */
+.books-grid {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; margin-bottom:2rem;
+}
+.book-card {
+  background:var(--white); border:1px solid var(--border);
+  border-radius:2px; overflow:hidden;
+  display:flex; flex-direction:column;
+  transition:box-shadow .2s, transform .2s;
+}
+.book-card:hover { box-shadow:0 8px 30px rgba(44,24,16,.1); transform:translateY(-3px); }
+.book-cover {
+  aspect-ratio:3/4; background:var(--cream-dark);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; position:relative;
+}
+.book-cover img { width:100%; height:100%; object-fit:cover; }
+.book-cover-placeholder {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.5rem; font-weight:300; color:var(--border);
+  text-align:center; padding:1rem;
+}
+.book-body { padding:1.25rem; flex:1; display:flex; flex-direction:column; gap:.5rem; }
+.book-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.05rem; font-weight:600; color:var(--brown); line-height:1.25;
+}
+.book-publisher { font-size:.78rem; color:var(--muted); }
+.book-footer { padding:.75rem 1.25rem; border-top:1px solid var(--border); }
+
+/* RESEARCH */
+.research-tabs { display:flex; gap:.5rem; margin-bottom:2.5rem; flex-wrap:wrap; }
+.r-tab {
+  padding:.45rem 1.1rem; border-radius:2px;
+  font-size:.75rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+  border:1.5px solid var(--border); background:transparent;
+  color:var(--muted); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .2s;
+}
+.r-tab:hover, .r-tab.active { background:var(--terra); color:#fff; border-color:var(--terra); }
+
+.pub-item {
+  display:grid; grid-template-columns:1fr auto;
+  gap:2rem; align-items:start;
+  padding:1.25rem 0; border-bottom:1px solid var(--border);
+}
+.pub-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem; font-weight:600; color:var(--brown); margin-bottom:.3rem;
+}
+.pub-title a { border-bottom:1px solid var(--border); transition:border-color .2s; }
+.pub-title a:hover { border-color:var(--terra); color:var(--terra); }
+.pub-meta { font-size:.85rem; color:var(--muted); font-style:italic; }
+.pub-badge {
+  display:inline-block; padding:.2rem .65rem;
+  font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  border-radius:2px; white-space:nowrap; align-self:start;
+}
+.badge-pub { background:#EAF3E8; color:#2E6B26; }
+.badge-forth { background:#FFF4E0; color:#8B5E00; }
+.badge-review { background:#EAF0FB; color:#1A4A8B; }
+.badge-progress { background:var(--terra-pale); color:var(--terra); }
+
+.conf-item { padding:1.25rem 0; border-bottom:1px solid var(--border); }
+.conf-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.05rem; font-weight:600; color:var(--brown); margin-bottom:.3rem;
+}
+.conf-meta { font-size:.85rem; color:var(--muted); }
+
+@media(max-width:900px){ .books-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:500px){ .books-grid { grid-template-columns:1fr 1fr; } .pub-item { grid-template-columns:1fr; } }
+</style>
+</head>
+<body class="page">
+<nav class="nav">
+  <a href="index.html" class="nav-brand">Ìyá <em>Yorùbá</em></a>
+  <ul class="nav-links">
+    <li class="nav-item"><a href="index.html">Home</a></li>
+    <li class="nav-item"><a href="about.html">About</a></li>
+    <li class="nav-item">
+      <a href="publications.html">Publications</a>
+      <div class="nav-dropdown">
+        <a href="publications.html#books">Books</a>
+        <a href="publications.html#research">Research</a>
+      </div>
+    </li>
+    <li class="nav-item"><a href="projects.html">Projects</a></li>
+    <li class="nav-item">
+      <a href="#">Links</a>
+      <div class="nav-dropdown">
+        <a href="blog.html">Blog</a>
+        <a href="media.html">Media Coverage</a>
+      </div>
+    </li>
+  </ul>
+  <button class="nav-hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<nav class="mobile-nav">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="publications.html">Publications</a>
+  <div class="mobile-sub">
+    <a href="publications.html#books">&#8212; Books</a>
+    <a href="publications.html#research">&#8212; Research</a>
+  </div>
+  <a href="projects.html">Projects</a>
+  <a href="blog.html">Blog</a>
+  <a href="media.html">Media Coverage</a>
+</nav>
+<main>
+
+<div class="page-hero">
+  <div class="section-inner">
+    <h1>Publications.</h1>
+    <p>Books for learners and children, alongside scholarly articles, chapters, and conference presentations.</p>
+  </div>
+</div>
+
+<!-- BOOKS -->
+<section class="section" id="books" style="background:var(--white);">
+  <div class="section-inner">
+    <span class="section-eyebrow">Alamoja Books</span>
+    <h2 class="section-title">Books</h2>
+    <p class="section-lead">Published by Alamoja Books, an imprint of Alámọ̀já Languages. Books for second language learners, heritage speakers, and children.</p>
+
+    <div class="books-grid">
+
+      <div class="book-card reveal">
+        <div class="book-cover">
+          <div class="book-cover-placeholder">Wàá<br>Bańbẹ̀</div>
+        </div>
+        <div class="book-body">
+          <h3 class="book-title">Wàá Bańbẹ̀</h3>
+          <p class="book-publisher">Alamoja Books</p>
+        </div>
+        <div class="book-footer">
+          <button class="btn btn-muted" style="width:100%;justify-content:center;">Coming Soon</button>
+        </div>
+      </div>
+
+      <div class="book-card reveal reveal-delay-1">
+        <div class="book-cover">
+          <div class="book-cover-placeholder">Tọ́lá Ọmọ<br>Dáadáa</div>
+        </div>
+        <div class="book-body">
+          <h3 class="book-title">Tọ́lá Ọmọ Dáadáa</h3>
+          <p class="book-publisher">Alamoja Books</p>
+        </div>
+        <div class="book-footer">
+          <button class="btn btn-muted" style="width:100%;justify-content:center;">Coming Soon</button>
+        </div>
+      </div>
+
+      <div class="book-card reveal reveal-delay-2">
+        <div class="book-cover">
+          <div class="book-cover-placeholder">Wà Pẹ̀lú<br>Mi</div>
+        </div>
+        <div class="book-body">
+          <h3 class="book-title">Wà Pẹ̀lú Mi</h3>
+          <p class="book-publisher">Alamoja Books</p>
+        </div>
+        <div class="book-footer">
+          <button class="btn btn-muted" style="width:100%;justify-content:center;">Coming Soon</button>
+        </div>
+      </div>
+
+      <div class="book-card reveal reveal-delay-3">
+        <div class="book-cover">
+          <div class="book-cover-placeholder">Collection<br>of Yorùbá<br>Verbs</div>
+        </div>
+        <div class="book-body">
+          <h3 class="book-title">Collection of Yorùbá Verbs</h3>
+          <p class="book-publisher">Alamoja Books · 2020</p>
+        </div>
+        <div class="book-footer">
+          <a href="#" class="btn btn-terra" style="width:100%;justify-content:center;">Buy Now</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- RESEARCH -->
+<section class="section" id="research">
+  <div class="section-inner">
+    <span class="section-eyebrow">Scholarship</span>
+    <h2 class="section-title">Research Publications</h2>
+
+    <div class="research-tabs">
+      <button class="r-tab active" data-filter="all">All</button>
+      <button class="r-tab" data-filter="article">Articles &amp; Chapters</button>
+      <button class="r-tab" data-filter="conference">Conferences</button>
+      <button class="r-tab" data-filter="progress">In Progress</button>
+    </div>
+
+    <!-- Articles -->
+    <div data-group="article">
+      <div class="pub-item reveal" data-type="article">
+        <div>
+          <p class="pub-title"><a href="https://doi.org/10.1080/21674736.2025.2611708" target="_blank" rel="noopener">"Reimagining Sẹgilọla's Voice: A Feminist Tradaptation of the First Yorùbá Novel"</a></p>
+          <p class="pub-meta"><em>Journal of the African Literature Association</em> · 2026 · pp. 1–16</p>
+        </div>
+        <span class="pub-badge badge-pub">Published</span>
+      </div>
+      <div class="pub-item reveal" data-type="article">
+        <div>
+          <p class="pub-title">"Writing Against Erasure: Yorùbá Literary Heritage and the Resistance of Discoverability"</p>
+          <p class="pub-meta">In <em>New Directions in African Languages and Literatures.</em> Eds. Lisanza &amp; Muaka · De Gruyter Brill</p>
+        </div>
+        <span class="pub-badge badge-forth">Forthcoming</span>
+      </div>
+      <div class="pub-item reveal" data-type="article">
+        <div>
+          <p class="pub-title">"Early Written Literature in Yoruba Language"</p>
+          <p class="pub-meta">Co-authored with Prof. Akinloye Ojo · <em>Early Written Literature in African Languages and Scripts</em> · Cambridge University Press · Submitted Jan. 2026</p>
+        </div>
+        <span class="pub-badge badge-review">Under Review</span>
+      </div>
+      <div class="pub-item reveal" data-type="article">
+        <div>
+          <p class="pub-title">"Woli 3310's Faux Dialogue Mashups: A Study of Video Appropriation in Nigerian Context"</p>
+          <p class="pub-meta">In <em>Vocalizing Africa II.</em> Eds. Ojo &amp; Mbisike · 2025 · pp. 85–106</p>
+        </div>
+        <span class="pub-badge badge-pub">Published</span>
+      </div>
+      <div class="pub-item reveal" data-type="article">
+        <div>
+          <p class="pub-title">"The Effect of Domain and Diacritics in Yoruba–English Neural Machine Translation"</p>
+          <p class="pub-meta">With Adelani, D.I., Ruiter, D., Alabi, J.O., et al. · <em>Machine Translation Summit</em> · 2021</p>
+        </div>
+        <span class="pub-badge badge-pub">Published</span>
+      </div>
+      <div class="pub-item reveal" data-type="article">
+        <div>
+          <p class="pub-title">"Brymo's Music: A Reflection of Social Issues"</p>
+          <p class="pub-meta"><em>Language Review: International Journal of Linguistics</em> · Maiden Edition · 2022 · pp. 15–25</p>
+        </div>
+        <span class="pub-badge badge-pub">Published</span>
+      </div>
+    </div>
+
+    <!-- In Progress -->
+    <div data-group="progress">
+      <div class="pub-item reveal" data-type="progress">
+        <div>
+          <p class="pub-title">Dissertation: Rewriting the Record — A Tri-Layered Gynocritical Recovery of Yorùbá Women's Literary Herstories</p>
+          <p class="pub-meta">PhD · University of Georgia · Expected Spring 2027 · Major Professor: Dr. Akinloye Ojo</p>
+        </div>
+        <span class="pub-badge badge-progress">In Progress</span>
+      </div>
+    </div>
+
+    <!-- Conferences -->
+    <div data-group="conference" style="margin-top:1rem;">
+      <div class="conf-item reveal" data-type="conference">
+        <p class="conf-title">"Yoruba Texts: Building a Comprehensive Digital Catalog for Yoruba Literature"</p>
+        <p class="conf-meta">Nigerian Languages Data &amp; Sci-Tech Conference (NLDSTC) · Lagos · August 2025</p>
+      </div>
+      <div class="conf-item reveal" data-type="conference">
+        <p class="conf-title">"Navigating Online Yoruba Teaching: Children vs. Adults &amp; Heritage vs. L2 Learners" (Panel Organiser)</p>
+        <p class="conf-meta">NLDSTC · Lagos · August 2025</p>
+      </div>
+      <div class="conf-item reveal" data-type="conference">
+        <p class="conf-title">"Maternal Legacies: Motherhood and Cultural Preservation in Early Yoruba Women's Writing"</p>
+        <p class="conf-meta">NorthEast Modern Language Association Annual Convention · Philadelphia · March 2025</p>
+      </div>
+      <div class="conf-item reveal" data-type="conference">
+        <p class="conf-title">"Kíkọ́ Akẹ́kọ̀ọ́ ni Ọrọ̀ Arọ́pò Orúkọ Yorùbá: Ìwoye lílò Ète Ikọ́ni Onísọ̀rí-ìsọ̀rí"</p>
+        <p class="conf-meta">African Language Teachers Association Conference · Indiana University, Bloomington · April 2024</p>
+      </div>
+      <div class="conf-item reveal" data-type="conference">
+        <p class="conf-title">"Bridging Faiths, Memory Preservation and Religious Tolerance: Examining Yoruba Women's Roles in Sociocultural Development through R. Johnston's <em>Iyabo</em>"</p>
+        <p class="conf-meta">8th BICAID · African Studies Institute, UGA · November 2023</p>
+      </div>
+      <div class="conf-item reveal" data-type="conference">
+        <p class="conf-title">"Women's Writing in Early Yorùbá Literature: Uncovering Unheard Voices"</p>
+        <p class="conf-meta">13th SEALLF · University of Florida · September 2023</p>
+      </div>
+      <div class="conf-item reveal" data-type="conference">
+        <p class="conf-title">"Analyzing the Effectiveness of Backward Curriculum Design and Target Language Use in Online &amp; Offline AFLANG Instruction"</p>
+        <p class="conf-meta">SEALLF · University of Florida · September 2023</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</main>
+<script src="js/main.js"></script>
+<script>
+document.querySelectorAll('.r-tab').forEach(function(tab){
+  tab.addEventListener('click', function(){
+    document.querySelectorAll('.r-tab').forEach(function(t){ t.classList.remove('active'); });
+    this.classList.add('active');
+    var f = this.dataset.filter;
+    document.querySelectorAll('.pub-item, .conf-item').forEach(function(item){
+      var type = item.dataset.type;
+      var show = f === 'all' || type === f ||
+        (f === 'article' && type === 'article') ||
+        (f === 'conference' && type === 'conference') ||
+        (f === 'progress' && type === 'progress');
+      item.style.display = show ? 'grid' : 'none';
+    });
+    document.querySelectorAll('.conf-item').forEach(function(item){
+      if(f === 'all' || f === 'conference') item.style.display = 'block';
+      else item.style.display = 'none';
+    });
+  });
+});
+</script>
+<footer>
+  <div class="footer-inner">
+    <div>
+      <p class="footer-name">Damilola Adebonojo</p>
+      <p class="footer-tagline">Building the infrastructure African languages need to survive and thrive — through education, digital archives, and cultural preservation.</p>
+      <p class="footer-email" style="margin-top:1rem"><a href="mailto:damilola.adebonojo@uga.edu">damilola.adebonojo@uga.edu</a></p>
+    </div>
+    <div class="footer-col">
+      <h5>Pages</h5>
+      <ul>
+        <li><a href="about.html">About</a></li>
+        <li><a href="publications.html">Publications</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="media.html">Media Coverage</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Initiatives</h5>
+      <ul>
+        <li><a href="https://yorubatexts.com" target="_blank" rel="noopener">YorubaTexts</a></li>
+        <li><a href="https://alamojalanguages.com" target="_blank" rel="noopener">Alámọ̀já Languages</a></li>
+        <li><a href="https://yoruversity.com" target="_blank" rel="noopener">Yoruversity</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 Damilola Adebonojo (Ìyá Yorùbá). All rights reserved.</p>
+    <div class="footer-socials">
+      <a href="https://www.instagram.com/iya_yoruba/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.linkedin.com/in/iyayoruba/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://www.x.com/iyayoruba" target="_blank" rel="noopener">X</a>
+      <a href="https://www.threads.com/@iya_yoruba" target="_blank" rel="noopener">Threads</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

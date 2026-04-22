@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Teaching — Ìyá Yorùbá</title>
+<link rel="stylesheet" href="/css/style.css"/>
+<link rel="stylesheet" />
+<style>
+.teaching-layout {
+  max-width: 1100px; margin: 0 auto;
+}
+.teaching-philosophy {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 3rem;
+  margin-bottom: 4rem;
+  position: relative;
+}
+.teaching-philosophy::before {
+  content: '\201C';
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 8rem;
+  line-height: 1;
+  color: var(--terra-pale);
+  position: absolute;
+  top: 1rem; left: 2rem;
+}
+.teaching-philosophy blockquote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--brown);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  padding-top: 1.5rem;
+  position: relative;
+}
+.teaching-philosophy p {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--brown-mid);
+  margin-bottom: 1rem;
+}
+
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 4rem;
+}
+.pillar {
+  background: var(--cream);
+  padding: 2rem;
+  transition: background .2s;
+}
+.pillar:hover { background: var(--white); }
+.pillar h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--brown);
+  margin-bottom: .5rem;
+}
+.pillar p { font-size: .875rem; color: var(--muted); }
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 4rem;
+}
+.course-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: border-color .2s;
+}
+.course-card:hover { border-color: var(--terra); }
+.course-card h4 { font-size:1rem; font-weight:600; color:var(--brown); margin-bottom:.3rem; }
+.course-card p { font-size:.85rem; color:var(--muted); }
+.course-level {
+  flex-shrink:0;
+  font-size:.7rem; font-weight:600;
+  letter-spacing:.08em; text-transform:uppercase;
+  color:var(--terra);
+  border:1px solid var(--terra-pale);
+  background:var(--terra-pale);
+  border-radius:2px;
+  padding:.2rem .6rem;
+  white-space:nowrap;
+}
+
+.rating-bar {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 2rem 3rem;
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  margin-bottom: 4rem;
+}
+.rating-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 4rem;
+  font-weight: 300;
+  color: var(--brown);
+  line-height: 1;
+}
+.rating-number span { font-size: 1.5rem; color: var(--muted); }
+.rating-label { font-size: .85rem; color: var(--muted); max-width: 200px; }
+
+.testimonials { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.testimonial {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 2rem;
+}
+.testimonial p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--brown-mid);
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+}
+.testimonial-attr { font-size: .8rem; color: var(--muted); }
+
+@media(max-width:768px){
+  .pillars { grid-template-columns:1fr; }
+  .courses-grid { grid-template-columns:1fr; }
+  .testimonials { grid-template-columns:1fr; }
+  .rating-bar { flex-direction:column; align-items:flex-start; gap:1rem; }
+}
+</style>
+</head>
+<body class="page">
+<nav class="nav">
+  <a href="index.html" class="nav-brand">Ìyá <em>Yorùbá</em></a>
+  <ul class="nav-links">
+    <li class="nav-item"><a href="index.html">Home</a></li>
+    <li class="nav-item"><a href="about.html">About</a></li>
+    <li class="nav-item">
+      <a href="publications.html">Publications</a>
+      <div class="nav-dropdown">
+        <a href="publications.html#books">Books</a>
+        <a href="publications.html#research">Research</a>
+      </div>
+    </li>
+    <li class="nav-item"><a href="projects.html">Projects</a></li>
+    <li class="nav-item">
+      <a href="#">Links</a>
+      <div class="nav-dropdown">
+        <a href="blog.html">Blog</a>
+        <a href="media.html">Media Coverage</a>
+      </div>
+    </li>
+  </ul>
+  <button class="nav-hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<nav class="mobile-nav">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="publications.html">Publications</a>
+  <div class="mobile-sub">
+    <a href="publications.html#books">&#8212; Books</a>
+    <a href="publications.html#research">&#8212; Research</a>
+  </div>
+  <a href="projects.html">Projects</a>
+  <a href="blog.html">Blog</a>
+  <a href="media.html">Media Coverage</a>
+</nav>
+<main>
+
+<div class="page-hero">
+  <div class="section-inner">
+    <h1>Teaching.</h1>
+    <p>Over a decade of teaching Yorùbá — to children and adults, in Lagos and Athens, online and in person. The approach evolves. The mission does not.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="teaching-layout">
+
+    <span class="section-eyebrow">Philosophy</span>
+    <div class="teaching-philosophy reveal">
+      <blockquote>"I don't just teach the language. I show my students how to use it, and I use it with them."</blockquote>
+      <p>
+        Teaching Yorùbá is part of a greater mission to preserve the language and culture. Every course
+        is goal-oriented and communicative — designed not around topics to be covered, but around what
+        students will be able to do with the language by the end of every session.
+      </p>
+      <p>
+        Rather than teaching textbook themes in isolation, I take the Yorùbá language from the page
+        into a living community of practice — simulated through scenario-building, role play, and actual use.
+        The classroom is a safe haven. Language learning is a messy, vulnerable process, and students
+        only flourish when the space makes that safe.
+      </p>
+    </div>
+
+    <span class="section-eyebrow">Approach</span>
+    <div class="pillars reveal" style="margin-top:1rem;">
+      <div class="pillar">
+        <h4>Goal-Oriented &amp; Communicative</h4>
+        <p>Every class begins with a clear can-do objective. By the end, students can do something in Yorùbá they couldn't do before.</p>
+      </div>
+      <div class="pillar">
+        <h4>Culturally Grounded</h4>
+        <p>Language is a vessel of culture, memory, and identity. Culture is never an add-on — it is the classroom.</p>
+      </div>
+      <div class="pillar">
+        <h4>Safe &amp; Student-Centred</h4>
+        <p>Effort is graded, not perfection. Assessment is scaffolded. Students are humans first, learners second.</p>
+      </div>
+    </div>
+
+    <!-- Rating -->
+    <div class="rating-bar reveal" style="margin-top:3rem;">
+      <div>
+        <p class="rating-number">4.8<span>/5.0</span></p>
+      </div>
+      <p class="rating-label">Consistent student evaluation rating across all courses taught at the University of Georgia.</p>
+    </div>
+
+    <!-- Courses -->
+    <span class="section-eyebrow">Courses Taught</span>
+    <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:500;margin:1rem 0 2rem;">University of Georgia · 2021 – Present</h3>
+    <div class="courses-grid reveal">
+      <div class="course-card">
+        <div>
+          <h4>Elementary Yorùbá I &amp; II</h4>
+          <p>YORB 1010 · YORB 1020 · Foundational phonetics, grammar, and everyday communication.</p>
+        </div>
+        <span class="course-level">Beginner</span>
+      </div>
+      <div class="course-card">
+        <div>
+          <h4>Intermediate Yorùbá I &amp; II</h4>
+          <p>YORB 2010 · YORB 2020 · Expanding fluency across all four language skills.</p>
+        </div>
+        <span class="course-level">Intermediate</span>
+      </div>
+      <div class="course-card">
+        <div>
+          <h4>Multicultural Black Diaspora Literature</h4>
+          <p>CMLT 2600 · Literary and cultural texts from across the African diaspora.</p>
+        </div>
+        <span class="course-level">Undergraduate</span>
+      </div>
+      <div class="course-card">
+        <div>
+          <h4>Alámọ̀já Languages</h4>
+          <p>Beginner through advanced · Heritage and L2 learners · Children and adults · Online.</p>
+        </div>
+        <span class="course-level">All Levels</span>
+      </div>
+    </div>
+
+    <!-- Testimonials -->
+    <span class="section-eyebrow">Student Voices</span>
+    <div class="testimonials reveal" style="margin-top:1rem;">
+      <div class="testimonial">
+        <p>"She provided a healthy learning environment where we were allowed to make mistakes. I did not feel an excessive amount of pressure to appear perfect or overly-intelligent."</p>
+        <p class="testimonial-attr">— Student evaluation, University of Georgia</p>
+      </div>
+      <div class="testimonial">
+        <p>"<!-- SWAP: Add a second real student quote here -->"</p>
+        <p class="testimonial-attr">— <!-- Student name / context --></p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</main>
+<script src="/js/components.js"></script>
+<script src="/js/main.js"></script>
+<footer>
+  <div class="footer-inner">
+    <div>
+      <p class="footer-name">Damilola Adebonojo</p>
+      <p class="footer-tagline">Building the infrastructure African languages need to survive and thrive — through education, digital archives, and cultural preservation.</p>
+      <p class="footer-email" style="margin-top:1rem"><a href="mailto:damilola.adebonojo@uga.edu">damilola.adebonojo@uga.edu</a></p>
+    </div>
+    <div class="footer-col">
+      <h5>Pages</h5>
+      <ul>
+        <li><a href="about.html">About</a></li>
+        <li><a href="publications.html">Publications</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="media.html">Media Coverage</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Initiatives</h5>
+      <ul>
+        <li><a href="https://yorubatexts.com" target="_blank" rel="noopener">YorubaTexts</a></li>
+        <li><a href="https://alamojalanguages.com" target="_blank" rel="noopener">Alámọ̀já Languages</a></li>
+        <li><a href="https://yoruversity.com" target="_blank" rel="noopener">Yoruversity</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 Damilola Adebonojo (Ìyá Yorùbá). All rights reserved.</p>
+    <div class="footer-socials">
+      <a href="https://www.instagram.com/iya_yoruba/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.linkedin.com/in/iyayoruba/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://www.x.com/iyayoruba" target="_blank" rel="noopener">X</a>
+      <a href="https://www.threads.com/@iya_yoruba" target="_blank" rel="noopener">Threads</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
