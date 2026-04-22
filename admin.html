@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin — Ìyá Yorùbá</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+  --brown: #2C1810; --terra: #A0522D; --cream: #F8F4EE;
+  --cream-dark: #EFE9DF; --border: #DDD5C8; --muted: #7A6558;
+  --white: #fff; --success: #2E7D32; --danger: #C62828;
+  --gold: #B8963E; --sidebar: 230px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: #F0EDE8; color: var(--brown); min-height: 100vh; font-size: 15px; }
+
+/* LOGIN */
+.login-screen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: var(--brown);
+}
+.login-box {
+  background: var(--white); border-radius: 4px; padding: 3rem;
+  width: 100%; max-width: 420px;
+}
+.login-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem; font-weight: 600;
+  text-align: center; margin-bottom: .25rem; color: var(--brown);
+}
+.login-logo em { font-style: italic; color: var(--terra); }
+.login-sub { font-size: .85rem; color: var(--muted); text-align: center; margin-bottom: 2rem; }
+.field { margin-bottom: 1.1rem; }
+.field label { display: block; font-size: .75rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: .4rem; }
+.field input {
+  width: 100%; padding: .75rem 1rem; border: 1.5px solid var(--border);
+  border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: .9rem;
+  outline: none; transition: border-color .2s;
+}
+.field input:focus { border-color: var(--terra); }
+.btn-login {
+  width: 100%; padding: .85rem; background: var(--brown); color: #fff;
+  border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif;
+  font-size: .9rem; font-weight: 500; cursor: pointer; transition: background .2s; margin-top: .5rem;
+}
+.btn-login:hover { background: var(--terra); }
+.login-error { color: var(--danger); font-size: .82rem; margin-top: .75rem; text-align: center; display: none; }
+.login-loading { text-align: center; font-size: .85rem; color: var(--muted); margin-top: .75rem; display: none; }
+
+/* SHELL */
+.admin-shell { display: none; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar);
+  background: var(--brown); display: flex; flex-direction: column; z-index: 100;
+}
+.sidebar-logo {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  margin-bottom: .75rem;
+}
+.sidebar-logo h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem; font-weight: 600; color: #fff;
+}
+.sidebar-logo h1 em { font-style: italic; color: #C47A52; }
+.sidebar-logo p { font-size: .72rem; color: rgba(255,255,255,.4); margin-top: .2rem; }
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 0 .75rem; }
+.nav-item {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .7rem .75rem; border-radius: 3px;
+  font-size: .84rem; font-weight: 500; color: rgba(255,255,255,.6);
+  cursor: pointer; transition: all .2s; margin-bottom: 2px;
+  border: none; background: none; width: 100%; text-align: left;
+  font-family: 'DM Sans', sans-serif;
+}
+.nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+.nav-item.active { background: var(--terra); color: #fff; }
+.nav-item .icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+.sidebar-footer { padding: 1rem .75rem; border-top: 1px solid rgba(255,255,255,.1); }
+.btn-logout {
+  width: 100%; padding: .6rem; background: none;
+  border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.6);
+  border-radius: 2px; font-family: 'DM Sans', sans-serif;
+  font-size: .8rem; cursor: pointer; transition: all .2s;
+}
+.btn-logout:hover { border-color: rgba(255,255,255,.5); color: #fff; }
+
+/* MAIN */
+.admin-main { margin-left: var(--sidebar); padding: 2rem 2.5rem; min-height: 100vh; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+.panel-header { margin-bottom: 2rem; }
+.panel-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 500; margin-bottom: .3rem; }
+.panel-header p { font-size: .875rem; color: var(--muted); }
+
+/* CARDS */
+.card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 3px; padding: 1.5rem; margin-bottom: 1rem;
+}
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+.card-title { font-size: 1rem; font-weight: 600; color: var(--brown); }
+.card-sub { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
+.card-actions { display: flex; gap: .5rem; align-items: center; }
+
+/* STAT CARDS */
+.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 2rem; }
+.stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 3px; padding: 1.25rem 1.5rem; }
+.stat-icon { font-size: 1.5rem; margin-bottom: .5rem; }
+.stat-label { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: .25rem; }
+.stat-value { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; font-weight: 600; color: var(--brown); }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: .5rem 1rem; border-radius: 2px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: .8rem; font-weight: 500;
+  transition: all .2s; border: 1.5px solid transparent; white-space: nowrap;
+}
+.btn-primary { background: var(--brown); color: #fff; border-color: var(--brown); }
+.btn-primary:hover { background: var(--terra); border-color: var(--terra); }
+.btn-secondary { background: var(--cream-dark); color: var(--brown); border-color: var(--border); }
+.btn-secondary:hover { border-color: var(--terra); color: var(--terra); }
+.btn-danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+.btn-danger:hover { background: var(--danger); color: #fff; }
+.btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+.btn-sm { padding: .35rem .75rem; font-size: .75rem; }
+
+/* FORM */
+.form-field { margin-bottom: 1.1rem; }
+.form-field label { display: block; font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: .35rem; }
+.form-field input, .form-field textarea, .form-field select {
+  width: 100%; padding: .65rem .9rem; border: 1.5px solid var(--border);
+  border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: .875rem;
+  color: var(--brown); background: var(--cream); outline: none; transition: border-color .2s;
+}
+.form-field input:focus, .form-field textarea:focus, .form-field select:focus { border-color: var(--terra); background: #fff; }
+.form-field textarea { resize: vertical; min-height: 100px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-check { display: flex; align-items: center; gap: .6rem; padding: .65rem .9rem; border: 1.5px solid var(--border); border-radius: 2px; background: var(--cream); }
+.form-check input { width: 16px; height: 16px; accent-color: var(--terra); cursor: pointer; flex-shrink: 0; }
+.form-check label { font-size: .875rem; color: var(--brown); cursor: pointer; font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+/* IMAGE UPLOAD */
+.img-upload-zone {
+  border: 2px dashed var(--border); border-radius: 3px;
+  padding: 2rem; text-align: center; cursor: pointer;
+  transition: border-color .2s, background .2s; position: relative;
+}
+.img-upload-zone:hover { border-color: var(--terra); background: var(--cream); }
+.img-upload-zone.dragging { border-color: var(--terra); background: #F0DDD0; }
+.img-upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.img-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 2px; margin-bottom: .75rem; display: none; }
+.img-preview.visible { display: block; }
+.upload-icon { font-size: 2rem; margin-bottom: .5rem; }
+.upload-text { font-size: .875rem; color: var(--muted); }
+.upload-text strong { color: var(--terra); }
+
+/* COLLAPSE */
+.collapsible { display: none; padding-top: 1rem; border-top: 1px solid var(--border); margin-top: 1rem; }
+.collapsible.open { display: block; }
+
+/* STATUS BADGE */
+.badge { display: inline-block; padding: .2rem .6rem; border-radius: 2px; font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.badge-soon { background: #FFF4E0; color: #8B5E00; }
+.badge-live { background: #EAF3E8; color: #2E7D32; }
+.badge-draft { background: var(--cream-dark); color: var(--muted); }
+.badge-pub { background: #EAF3E8; color: #2E7D32; }
+
+/* EDITOR */
+.editor-toolbar { display: flex; gap: .5rem; padding: .5rem; background: var(--cream-dark); border: 1.5px solid var(--border); border-bottom: none; border-radius: 2px 2px 0 0; }
+.editor-btn { padding: .3rem .6rem; border: none; background: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: .8rem; border-radius: 2px; transition: background .2s; }
+.editor-btn:hover { background: var(--border); }
+.editor-area {
+  width: 100%; min-height: 200px; padding: .75rem 1rem;
+  border: 1.5px solid var(--border); border-radius: 0 0 2px 2px;
+  font-family: 'DM Sans', sans-serif; font-size: .9rem; line-height: 1.7;
+  color: var(--brown); background: var(--cream); outline: none;
+  resize: vertical;
+}
+.editor-area:focus { background: #fff; border-color: var(--terra); }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 2rem; right: 2rem;
+  background: var(--success); color: #fff;
+  padding: .85rem 1.5rem; border-radius: 3px;
+  font-size: .875rem; font-weight: 500;
+  transform: translateY(120px); opacity: 0;
+  transition: all .3s ease; z-index: 999; pointer-events: none;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.error { background: var(--danger); }
+
+/* LOADING */
+.loading { text-align: center; padding: 3rem; color: var(--muted); font-size: .9rem; }
+.spinner { display: inline-block; width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--terra); border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: .75rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* DIVIDER */
+hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar { transform: translateX(-100%); }
+  .admin-main { margin-left: 0; padding: 1.5rem; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <h1 class="login-logo">Ìyá <em>Yorùbá</em></h1>
+    <p class="login-sub">Admin Dashboard</p>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <button class="btn-login" onclick="doLogin()">Sign In</button>
+    <p class="login-error" id="loginError"></p>
+    <p class="login-loading" id="loginLoading">Signing in...</p>
+  </div>
+</div>
+
+<!-- ADMIN SHELL -->
+<div class="admin-shell" id="adminShell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>Ìyá <em>Yorùbá</em></h1>
+      <p>Content Manager</p>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="showPanel('dashboard')"><span class="icon">📊</span> Dashboard</button>
+      <button class="nav-item" onclick="showPanel('images')"><span class="icon">🖼️</span> Photos &amp; Images</button>
+      <button class="nav-item" onclick="showPanel('books')"><span class="icon">📚</span> Books</button>
+      <button class="nav-item" onclick="showPanel('projects')"><span class="icon">🏗️</span> Projects</button>
+      <button class="nav-item" onclick="showPanel('media')"><span class="icon">📰</span> Media Coverage</button>
+      <button class="nav-item" onclick="showPanel('blog')"><span class="icon">✍️</span> Blog Posts</button>
+      <button class="nav-item" onclick="showPanel('bio')"><span class="icon">👤</span> Bio Text</button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="panel-header">
+        <h2>Dashboard</h2>
+        <p>Welcome back. Everything you manage is here.</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><p class="stat-icon">🖼️</p><p class="stat-label">Photos</p><p class="stat-value" id="stat-images">—</p></div>
+        <div class="stat-card"><p class="stat-icon">📚</p><p class="stat-label">Books</p><p class="stat-value" id="stat-books">—</p></div>
+        <div class="stat-card"><p class="stat-icon">📰</p><p class="stat-label">Media</p><p class="stat-value" id="stat-media">—</p></div>
+        <div class="stat-card"><p class="stat-icon">✍️</p><p class="stat-label">Blog Posts</p><p class="stat-value" id="stat-blog">—</p></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
+        <div class="card" style="cursor:pointer" onclick="showPanel('images')">
+          <p style="font-size:2rem;margin-bottom:.75rem">🖼️</p>
+          <p style="font-weight:600;margin-bottom:.25rem">Upload Photos</p>
+          <p style="font-size:.82rem;color:var(--muted)">Hero image, about photo, project images</p>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="showPanel('books')">
+          <p style="font-size:2rem;margin-bottom:.75rem">📚</p>
+          <p style="font-weight:600;margin-bottom:.25rem">Manage Books</p>
+          <p style="font-size:.82rem;color:var(--muted)">Update covers, toggle Coming Soon / Buy Now</p>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="showPanel('blog')">
+          <p style="font-size:2rem;margin-bottom:.75rem">✍️</p>
+          <p style="font-weight:600;margin-bottom:.25rem">Write a Post</p>
+          <p style="font-size:.82rem;color:var(--muted)">Add essays, reflections, and updates</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMAGES -->
+    <div class="panel" id="panel-images">
+      <div class="panel-header">
+        <h2>Photos &amp; Images</h2>
+        <p>Upload photos here. They update on the live site immediately.</p>
+      </div>
+      <div id="images-list"><div class="loading"><div class="spinner"></div><p>Loading...</p></div></div>
+    </div>
+
+    <!-- BOOKS -->
+    <div class="panel" id="panel-books">
+      <div class="panel-header">
+        <h2>Books</h2>
+        <p>Upload covers, add purchase links, and toggle Coming Soon to Buy Now.</p>
+      </div>
+      <div id="books-list"><div class="loading"><div class="spinner"></div><p>Loading...</p></div></div>
+      <button class="btn btn-primary" onclick="showNewBook()" style="margin-top:1rem">+ Add New Book</button>
+      <div id="new-book-form" class="card" style="display:none;margin-top:1rem">
+        <p style="font-weight:600;margin-bottom:1.25rem">New Book</p>
+        <div class="form-row">
+          <div class="form-field"><label>Title</label><input id="nb-title" placeholder="Book title"/></div>
+          <div class="form-field"><label>Publisher</label><input id="nb-publisher" value="Alamoja Books"/></div>
+        </div>
+        <div class="form-field"><label>Year (if published)</label><input id="nb-year" placeholder="e.g. 2024"/></div>
+        <div class="form-field"><label>Buy Link (leave empty for Coming Soon)</label><input id="nb-buyurl" placeholder="https://amazon.com/..."/></div>
+        <div style="display:flex;gap:.75rem;margin-top:.5rem">
+          <button class="btn btn-primary" onclick="saveNewBook()">Save Book</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('new-book-form').style.display='none'">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="panel" id="panel-projects">
+      <div class="panel-header">
+        <h2>Projects</h2>
+        <p>Edit existing projects or add new ones. They appear on the Projects page and homepage.</p>
+      </div>
+      <div id="projects-list"><div class="loading"><div class="spinner"></div><p>Loading...</p></div></div>
+      <button class="btn btn-primary" onclick="showNewProject()" style="margin-top:1rem">+ Add New Project</button>
+      <div id="new-project-form" class="card" style="display:none;margin-top:1rem">
+        <p style="font-weight:600;margin-bottom:1.25rem">New Project</p>
+        <div class="form-row">
+          <div class="form-field"><label>Project Name</label><input id="np-name" placeholder="e.g. African Language Learners Journal"/></div>
+          <div class="form-field"><label>Category</label><input id="np-cat" placeholder="e.g. Journal / Platform / Archive"/></div>
+        </div>
+        <div class="form-field"><label>Short Description (homepage)</label><input id="np-short" placeholder="One sentence"/></div>
+        <div class="form-field"><label>Full Description</label><textarea id="np-full" placeholder="Full description for Projects page"></textarea></div>
+        <div class="form-field"><label>Link URL</label><input id="np-link" placeholder="https://..."/></div>
+        <div style="display:flex;gap:.75rem;margin-top:.5rem">
+          <button class="btn btn-primary" onclick="saveNewProject()">Save Project</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('new-project-form').style.display='none'">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEDIA -->
+    <div class="panel" id="panel-media">
+      <div class="panel-header">
+        <h2>Media Coverage</h2>
+        <p>Fill in missing dates and descriptions. Add new press entries.</p>
+      </div>
+      <div id="media-list"><div class="loading"><div class="spinner"></div><p>Loading...</p></div></div>
+      <button class="btn btn-primary" onclick="showNewMedia()" style="margin-top:1rem">+ Add New Entry</button>
+      <div id="new-media-form" class="card" style="display:none;margin-top:1rem">
+        <p style="font-weight:600;margin-bottom:1.25rem">New Media Entry</p>
+        <div class="form-row">
+          <div class="form-field"><label>Title</label><input id="nm-title" placeholder="Headline or interview title"/></div>
+          <div class="form-field"><label>Outlet</label><input id="nm-outlet" placeholder="e.g. The Guardian Nigeria"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Type</label>
+            <select id="nm-type">
+              <option value="interview">Interview</option>
+              <option value="radio">Radio</option>
+              <option value="feature">Feature</option>
+              <option value="profile">Profile</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Date</label><input id="nm-date" placeholder="e.g. March 2025"/></div>
+        </div>
+        <div class="form-field"><label>Description</label><textarea id="nm-desc" placeholder="One or two sentences"></textarea></div>
+        <div class="form-field"><label>Link URL</label><input id="nm-link" placeholder="https://..."/></div>
+        <div style="display:flex;gap:.75rem;margin-top:.5rem">
+          <button class="btn btn-primary" onclick="saveNewMedia()">Save Entry</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('new-media-form').style.display='none'">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOG -->
+    <div class="panel" id="panel-blog">
+      <div class="panel-header">
+        <h2>Blog Posts</h2>
+        <p>Write and publish posts. Published posts appear on the Blog page.</p>
+      </div>
+      <div class="card">
+        <p style="font-weight:600;margin-bottom:1.25rem">New Post</p>
+        <div class="form-field"><label>Title</label><input id="bp-title" placeholder="Post title"/></div>
+        <div class="form-row">
+          <div class="form-field"><label>Category</label>
+            <select id="bp-cat">
+              <option value="Language">Language</option>
+              <option value="Culture">Culture</option>
+              <option value="Preservation">Preservation</option>
+              <option value="Research">Research</option>
+              <option value="Personal">Personal</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Content</label>
+          <div class="editor-toolbar">
+            <button class="editor-btn" onclick="formatText('bold')"><strong>B</strong></button>
+            <button class="editor-btn" onclick="formatText('italic')"><em>I</em></button>
+            <button class="editor-btn" onclick="formatText('insertUnorderedList')">• List</button>
+          </div>
+          <div class="editor-area" id="bp-content" contenteditable="true" data-placeholder="Write your post here..."></div>
+        </div>
+        <div style="display:flex;gap:.75rem">
+          <button class="btn btn-secondary" onclick="saveBlogPost(false)">Save Draft</button>
+          <button class="btn btn-primary" onclick="saveBlogPost(true)">Publish</button>
+        </div>
+      </div>
+      <div style="margin-top:2rem">
+        <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem">Published Posts</h3>
+        <div id="blog-list"><p style="font-size:.875rem;color:var(--muted)">No posts yet.</p></div>
+      </div>
+    </div>
+
+    <!-- BIO -->
+    <div class="panel" id="panel-bio">
+      <div class="panel-header">
+        <h2>Bio Text</h2>
+        <p>Edit the text that appears on your homepage and About page.</p>
+      </div>
+      <div class="card">
+        <p style="font-weight:600;margin-bottom:1rem">Homepage Bio</p>
+        <div class="form-field">
+          <label>Bio Paragraph</label>
+          <textarea id="bio-text" style="min-height:180px"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="saveBio()">Save Changes</button>
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <p style="font-weight:600;margin-bottom:1rem">Contact Email (shown in footer)</p>
+        <div class="form-field">
+          <label>Email Address</label>
+          <input id="footer-email" placeholder="your@email.com"/>
+        </div>
+        <button class="btn btn-primary" onclick="saveFooterEmail()">Save</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://msrfitvtiyfukgnzhqrs.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_E8Xtx3-pZKG-SKwCOJyWNg__QBOshKX';
+const ALLOWED_EMAIL = 'iyayorubagidi@gmail.com';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── TOAST ─────────────────────────────────────────────
+function toast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '') + ' show';
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── AUTH ──────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  const loadEl = document.getElementById('loginLoading');
+
+  errEl.style.display = 'none';
+  loadEl.style.display = 'block';
+
+  if (email !== ALLOWED_EMAIL) {
+    loadEl.style.display = 'none';
+    errEl.textContent = 'Access denied.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  loadEl.style.display = 'none';
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.style.display = 'block';
+  } else {
+    enterAdmin();
+  }
+}
+
+document.getElementById('loginPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+async function doLogout() {
+  await sb.auth.signOut();
+  document.getElementById('adminShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+async function checkSession() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) enterAdmin();
+}
+
+function enterAdmin() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminShell').style.display = 'flex';
+  loadDashboard();
+}
+
+// ── PANEL NAV ─────────────────────────────────────────
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (id === 'images') loadImages();
+  if (id === 'books') loadBooks();
+  if (id === 'projects') loadProjects();
+  if (id === 'media') loadMedia();
+  if (id === 'blog') loadBlogPosts();
+  if (id === 'bio') loadBio();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────
+async function loadDashboard() {
+  const [imgs, books, media, blog] = await Promise.all([
+    sb.from('site_images').select('id', { count: 'exact' }),
+    sb.from('books').select('id', { count: 'exact' }),
+    sb.from('media_coverage').select('id', { count: 'exact' }),
+    sb.from('blog_posts').select('id', { count: 'exact' })
+  ]);
+  document.getElementById('stat-images').textContent = imgs.count ?? '—';
+  document.getElementById('stat-books').textContent = books.count ?? '—';
+  document.getElementById('stat-media').textContent = media.count ?? '—';
+  document.getElementById('stat-blog').textContent = blog.count ?? '—';
+}
+
+// ── IMAGES ────────────────────────────────────────────
+const IMAGE_LABELS = {
+  'hero-photo':      'Homepage Hero Photo',
+  'about-photo':     'About Page Photo',
+  'img-yorubatexts': 'YorubaTexts Project Image',
+  'img-alamoja':     'Alámọ̀já Languages Image',
+  'img-yoruversity': 'Yoruversity Image'
+};
+
+async function loadImages() {
+  const { data } = await sb.from('site_images').select('*').order('image_key');
+  const el = document.getElementById('images-list');
+  if (!data || !data.length) { el.innerHTML = '<p class="loading">No images found.</p>'; return; }
+
+  el.innerHTML = data.map(img => `
+    <div class="card" id="img-card-${img.image_key}">
+      <div class="card-header">
+        <div>
+          <p class="card-title">${IMAGE_LABELS[img.image_key] || img.image_key}</p>
+          <p class="card-sub">${img.image_url ? 'Image uploaded' : 'No image yet'}</p>
+        </div>
+      </div>
+      ${img.image_url ? `<img src="${img.image_url}" style="max-height:160px;object-fit:cover;border-radius:2px;margin-bottom:1rem;width:100%" alt=""/>` : ''}
+      <div class="img-upload-zone" id="zone-${img.image_key}">
+        <input type="file" accept="image/*" onchange="uploadImage('${img.image_key}', this)"/>
+        <p class="upload-icon">📷</p>
+        <p class="upload-text"><strong>Click to upload</strong> or drag and drop</p>
+        <p class="upload-text" style="margin-top:.25rem;font-size:.78rem">JPG, PNG, WEBP — max 5MB</p>
+      </div>
+      <div id="upload-progress-${img.image_key}" style="display:none;margin-top:.75rem">
+        <p style="font-size:.82rem;color:var(--muted)">Uploading...</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function uploadImage(imageKey, input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { toast('File too large. Max 5MB.', true); return; }
+
+  const progressEl = document.getElementById('upload-progress-' + imageKey);
+  progressEl.style.display = 'block';
+
+  const ext = file.name.split('.').pop();
+  const path = `${imageKey}-${Date.now()}.${ext}`;
+
+  const { error: upErr } = await sb.storage.from('site-images').upload(path, file, { upsert: true });
+  if (upErr) { toast('Upload failed: ' + upErr.message, true); progressEl.style.display = 'none'; return; }
+
+  const { data: { publicUrl } } = sb.storage.from('site-images').getPublicUrl(path);
+
+  const { error: dbErr } = await sb.from('site_images')
+    .update({ image_url: publicUrl, updated_at: new Date().toISOString() })
+    .eq('image_key', imageKey);
+
+  progressEl.style.display = 'none';
+  if (dbErr) { toast('Saved to storage but DB update failed.', true); return; }
+
+  toast('Photo uploaded successfully!');
+  loadImages();
+}
+
+// ── BOOKS ─────────────────────────────────────────────
+async function loadBooks() {
+  const { data } = await sb.from('books').select('*').order('sort_order');
+  const el = document.getElementById('books-list');
+  if (!data) { el.innerHTML = '<p class="loading">Failed to load books.</p>'; return; }
+
+  el.innerHTML = data.map(book => `
+    <div class="card" id="book-card-${book.id}">
+      <div class="card-header">
+        <div>
+          <p class="card-title">${book.title}</p>
+          <p class="card-sub">${book.publisher}${book.year ? ' · ' + book.year : ''} &nbsp;
+            <span class="badge ${book.is_available ? 'badge-live' : 'badge-soon'}">${book.is_available ? 'Available' : 'Coming Soon'}</span>
+          </p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="toggleCollapse('book-form-${book.id}')">Edit</button>
+      </div>
+      ${book.cover_url ? `<img src="${book.cover_url}" style="max-height:120px;object-fit:cover;border-radius:2px;margin-bottom:1rem" alt="${book.title} cover"/>` : ''}
+      <div class="collapsible" id="book-form-${book.id}">
+        <div class="form-row">
+          <div class="form-field"><label>Title</label><input id="bt-${book.id}" value="${esc(book.title)}"/></div>
+          <div class="form-field"><label>Publisher</label><input id="bp-${book.id}" value="${esc(book.publisher)}"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Year</label><input id="by-${book.id}" value="${esc(book.year || '')}"/></div>
+          <div class="form-field"><label>Buy Link</label><input id="bu-${book.id}" value="${esc(book.buy_url || '')}" placeholder="https://..."/></div>
+        </div>
+        <div class="form-field">
+          <label>Cover Image</label>
+          <div class="img-upload-zone">
+            <input type="file" accept="image/*" onchange="uploadBookCover('${book.id}', this)"/>
+            <p class="upload-icon">📖</p>
+            <p class="upload-text"><strong>Click to upload</strong> cover image</p>
+          </div>
+        </div>
+        <div class="form-field">
+          <div class="form-check">
+            <input type="checkbox" id="ba-${book.id}" ${book.is_available ? 'checked' : ''}/>
+            <label for="ba-${book.id}">Mark as Available (changes button to "Buy Now")</label>
+          </div>
+        </div>
+        <div style="display:flex;gap:.75rem">
+          <button class="btn btn-primary" onclick="saveBook('${book.id}')">Save Changes</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteBook('${book.id}', '${esc(book.title)}')">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function uploadBookCover(bookId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  toast('Uploading cover...');
+  const path = `book-cover-${bookId}-${Date.now()}.${file.name.split('.').pop()}`;
+  const { error } = await sb.storage.from('site-images').upload(path, file, { upsert: true });
+  if (error) { toast('Upload failed', true); return; }
+  const { data: { publicUrl } } = sb.storage.from('site-images').getPublicUrl(path);
+  await sb.from('books').update({ cover_url: publicUrl }).eq('id', bookId);
+  toast('Cover uploaded!');
+  loadBooks();
+}
+
+async function saveBook(id) {
+  const updates = {
+    title: document.getElementById('bt-' + id).value,
+    publisher: document.getElementById('bp-' + id).value,
+    year: document.getElementById('by-' + id).value || null,
+    buy_url: document.getElementById('bu-' + id).value || null,
+    is_available: document.getElementById('ba-' + id).checked
+  };
+  const { error } = await sb.from('books').update(updates).eq('id', id);
+  if (error) { toast('Save failed: ' + error.message, true); return; }
+  toast('Book updated!');
+  loadBooks();
+}
+
+async function deleteBook(id, title) {
+  if (!confirm('Delete "' + title + '"?')) return;
+  await sb.from('books').delete().eq('id', id);
+  toast('Book deleted.');
+  loadBooks();
+}
+
+function showNewBook() {
+  document.getElementById('new-book-form').style.display = 'block';
+}
+
+async function saveNewBook() {
+  const title = document.getElementById('nb-title').value.trim();
+  if (!title) { toast('Title is required', true); return; }
+  const { error } = await sb.from('books').insert({
+    slug: title.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+    title,
+    publisher: document.getElementById('nb-publisher').value || 'Alamoja Books',
+    year: document.getElementById('nb-year').value || null,
+    buy_url: document.getElementById('nb-buyurl').value || null,
+    is_available: !!document.getElementById('nb-buyurl').value
+  });
+  if (error) { toast('Save failed', true); return; }
+  toast('Book added!');
+  document.getElementById('new-book-form').style.display = 'none';
+  loadBooks();
+}
+
+// ── PROJECTS ──────────────────────────────────────────
+async function loadProjects() {
+  const { data } = await sb.from('projects').select('*').order('sort_order');
+  const el = document.getElementById('projects-list');
+  if (!data) { el.innerHTML = '<p>Failed to load.</p>'; return; }
+
+  el.innerHTML = data.map(p => `
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <p class="card-title">${p.name}</p>
+          <p class="card-sub">${p.category || ''} · <a href="${p.link}" target="_blank" style="color:var(--terra)">${p.link}</a></p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="toggleCollapse('proj-form-${p.id}')">Edit</button>
+      </div>
+      ${p.image_url ? `<img src="${p.image_url}" style="max-height:120px;object-fit:cover;border-radius:2px;margin-bottom:1rem;width:100%" alt=""/>` : ''}
+      <div class="collapsible" id="proj-form-${p.id}">
+        <div class="form-row">
+          <div class="form-field"><label>Name</label><input id="pn-${p.id}" value="${esc(p.name)}"/></div>
+          <div class="form-field"><label>Category</label><input id="pc-${p.id}" value="${esc(p.category || '')}"/></div>
+        </div>
+        <div class="form-field"><label>Short Description (homepage)</label><input id="ps-${p.id}" value="${esc(p.short_desc || '')}"/></div>
+        <div class="form-field"><label>Full Description</label><textarea id="pf-${p.id}">${esc(p.full_desc || '')}</textarea></div>
+        <div class="form-field"><label>Link URL</label><input id="pl-${p.id}" value="${esc(p.link || '')}"/></div>
+        <div class="form-field">
+          <label>Project Image</label>
+          <div class="img-upload-zone">
+            <input type="file" accept="image/*" onchange="uploadProjectImage('${p.id}', '${p.image_key || p.id}', this)"/>
+            <p class="upload-icon">🖼️</p>
+            <p class="upload-text"><strong>Click to upload</strong> project image</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:.75rem">
+          <button class="btn btn-primary" onclick="saveProject('${p.id}')">Save Changes</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProject('${p.id}', '${esc(p.name)}')">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function uploadProjectImage(projectId, imageKey, input) {
+  const file = input.files[0];
+  if (!file) return;
+  toast('Uploading...');
+  const path = `project-${projectId}-${Date.now()}.${file.name.split('.').pop()}`;
+  const { error } = await sb.storage.from('site-images').upload(path, file, { upsert: true });
+  if (error) { toast('Upload failed', true); return; }
+  const { data: { publicUrl } } = sb.storage.from('site-images').getPublicUrl(path);
+  await sb.from('projects').update({ image_url: publicUrl }).eq('id', projectId);
+  if (imageKey) await sb.from('site_images').update({ image_url: publicUrl }).eq('image_key', imageKey);
+  toast('Image uploaded!');
+  loadProjects();
+}
+
+async function saveProject(id) {
+  const { error } = await sb.from('projects').update({
+    name: document.getElementById('pn-' + id).value,
+    category: document.getElementById('pc-' + id).value,
+    short_desc: document.getElementById('ps-' + id).value,
+    full_desc: document.getElementById('pf-' + id).value,
+    link: document.getElementById('pl-' + id).value
+  }).eq('id', id);
+  if (error) { toast('Save failed', true); return; }
+  toast('Project updated!');
+  loadProjects();
+}
+
+async function deleteProject(id, name) {
+  if (!confirm('Delete "' + name + '"?')) return;
+  await sb.from('projects').delete().eq('id', id);
+  toast('Project deleted.');
+  loadProjects();
+}
+
+function showNewProject() { document.getElementById('new-project-form').style.display = 'block'; }
+
+async function saveNewProject() {
+  const name = document.getElementById('np-name').value.trim();
+  if (!name) { toast('Name is required', true); return; }
+  const { error } = await sb.from('projects').insert({
+    name, category: document.getElementById('np-cat').value,
+    short_desc: document.getElementById('np-short').value,
+    full_desc: document.getElementById('np-full').value,
+    link: document.getElementById('np-link').value
+  });
+  if (error) { toast('Save failed', true); return; }
+  toast('Project added!');
+  document.getElementById('new-project-form').style.display = 'none';
+  loadProjects();
+}
+
+// ── MEDIA ─────────────────────────────────────────────
+async function loadMedia() {
+  const { data } = await sb.from('media_coverage').select('*').order('sort_order');
+  const el = document.getElementById('media-list');
+  if (!data) { el.innerHTML = '<p>Failed to load.</p>'; return; }
+
+  el.innerHTML = data.map(m => `
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <p class="card-title">${m.title}</p>
+          <p class="card-sub">${m.outlet || ''} · <span style="text-transform:capitalize">${m.type || ''}</span> · ${m.coverage_date || '<em style="color:var(--terra)">Date missing</em>'}</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="toggleCollapse('media-form-${m.id}')">Edit</button>
+      </div>
+      <div class="collapsible" id="media-form-${m.id}">
+        <div class="form-row">
+          <div class="form-field"><label>Title</label><input id="mt-${m.id}" value="${esc(m.title)}"/></div>
+          <div class="form-field"><label>Outlet</label><input id="mo-${m.id}" value="${esc(m.outlet || '')}"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Type</label>
+            <select id="mty-${m.id}">
+              <option value="interview" ${m.type === 'interview' ? 'selected' : ''}>Interview</option>
+              <option value="radio" ${m.type === 'radio' ? 'selected' : ''}>Radio</option>
+              <option value="feature" ${m.type === 'feature' ? 'selected' : ''}>Feature</option>
+              <option value="profile" ${m.type === 'profile' ? 'selected' : ''}>Profile</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Date</label><input id="md-${m.id}" value="${esc(m.coverage_date || '')}" placeholder="e.g. March 2025"/></div>
+        </div>
+        <div class="form-field"><label>Description</label><textarea id="mde-${m.id}">${esc(m.description || '')}</textarea></div>
+        <div class="form-field"><label>Link URL</label><input id="ml-${m.id}" value="${esc(m.link || '')}"/></div>
+        <div style="display:flex;gap:.75rem">
+          <button class="btn btn-primary" onclick="saveMedia('${m.id}')">Save Changes</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteMedia('${m.id}', '${esc(m.title)}')">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function saveMedia(id) {
+  const { error } = await sb.from('media_coverage').update({
+    title: document.getElementById('mt-' + id).value,
+    outlet: document.getElementById('mo-' + id).value,
+    type: document.getElementById('mty-' + id).value,
+    coverage_date: document.getElementById('md-' + id).value,
+    description: document.getElementById('mde-' + id).value,
+    link: document.getElementById('ml-' + id).value
+  }).eq('id', id);
+  if (error) { toast('Save failed', true); return; }
+  toast('Entry updated!');
+  loadMedia();
+}
+
+async function deleteMedia(id, title) {
+  if (!confirm('Delete "' + title + '"?')) return;
+  await sb.from('media_coverage').delete().eq('id', id);
+  toast('Entry deleted.');
+  loadMedia();
+}
+
+function showNewMedia() { document.getElementById('new-media-form').style.display = 'block'; }
+
+async function saveNewMedia() {
+  const title = document.getElementById('nm-title').value.trim();
+  if (!title) { toast('Title is required', true); return; }
+  const { error } = await sb.from('media_coverage').insert({
+    title, outlet: document.getElementById('nm-outlet').value,
+    type: document.getElementById('nm-type').value,
+    coverage_date: document.getElementById('nm-date').value,
+    description: document.getElementById('nm-desc').value,
+    link: document.getElementById('nm-link').value
+  });
+  if (error) { toast('Save failed', true); return; }
+  toast('Entry added!');
+  document.getElementById('new-media-form').style.display = 'none';
+  loadMedia();
+}
+
+// ── BLOG ──────────────────────────────────────────────
+function formatText(cmd) { document.execCommand(cmd, false, null); }
+
+async function saveBlogPost(publish) {
+  const title = document.getElementById('bp-title').value.trim();
+  if (!title) { toast('Title required', true); return; }
+  const content = document.getElementById('bp-content').innerHTML;
+  const { error } = await sb.from('blog_posts').insert({
+    title, content,
+    category: document.getElementById('bp-cat').value,
+    is_published: publish,
+    published_at: publish ? new Date().toISOString() : null
+  });
+  if (error) { toast('Save failed', true); return; }
+  toast(publish ? 'Post published!' : 'Draft saved!');
+  document.getElementById('bp-title').value = '';
+  document.getElementById('bp-content').innerHTML = '';
+  loadBlogPosts();
+}
+
+async function loadBlogPosts() {
+  const { data } = await sb.from('blog_posts').select('*').order('created_at', { ascending: false });
+  const el = document.getElementById('blog-list');
+  if (!data || !data.length) { el.innerHTML = '<p style="font-size:.875rem;color:var(--muted)">No posts yet.</p>'; return; }
+  el.innerHTML = data.map(p => `
+    <div class="card" style="margin-bottom:.75rem">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <p style="font-weight:600">${p.title}</p>
+          <p style="font-size:.8rem;color:var(--muted)">${p.category || ''} · <span class="badge ${p.is_published ? 'badge-pub' : 'badge-draft'}">${p.is_published ? 'Published' : 'Draft'}</span></p>
+        </div>
+        <div style="display:flex;gap:.5rem">
+          ${!p.is_published ? `<button class="btn btn-primary btn-sm" onclick="publishPost('${p.id}')">Publish</button>` : ''}
+          <button class="btn btn-danger btn-sm" onclick="deletePost('${p.id}')">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function publishPost(id) {
+  await sb.from('blog_posts').update({ is_published: true, published_at: new Date().toISOString() }).eq('id', id);
+  toast('Post published!');
+  loadBlogPosts();
+}
+
+async function deletePost(id) {
+  if (!confirm('Delete this post?')) return;
+  await sb.from('blog_posts').delete().eq('id', id);
+  toast('Post deleted.');
+  loadBlogPosts();
+}
+
+// ── BIO ───────────────────────────────────────────────
+async function loadBio() {
+  const { data } = await sb.from('page_content').select('*').in('content_key', ['homepage-bio', 'footer-email']);
+  if (!data) return;
+  data.forEach(row => {
+    if (row.content_key === 'homepage-bio') document.getElementById('bio-text').value = row.value || '';
+    if (row.content_key === 'footer-email') document.getElementById('footer-email').value = row.value || '';
+  });
+}
+
+async function saveBio() {
+  const { error } = await sb.from('page_content')
+    .update({ value: document.getElementById('bio-text').value, updated_at: new Date().toISOString() })
+    .eq('content_key', 'homepage-bio');
+  if (error) { toast('Save failed', true); return; }
+  toast('Bio saved!');
+}
+
+async function saveFooterEmail() {
+  const { error } = await sb.from('page_content')
+    .update({ value: document.getElementById('footer-email').value, updated_at: new Date().toISOString() })
+    .eq('content_key', 'footer-email');
+  if (error) { toast('Save failed', true); return; }
+  toast('Email saved!');
+}
+
+// ── UTILITIES ─────────────────────────────────────────
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toggleCollapse(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+// ── INIT ──────────────────────────────────────────────
+checkSession();
+</script>
+</body>
+</html>
