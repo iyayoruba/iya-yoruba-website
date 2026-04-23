@@ -4,7 +4,7 @@
 
 (function() {
   const SUPABASE_URL = 'https://msrfitvtiyfukgnzhqrs.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_E8Xtx3-pZKG-SKwCOJyWNg__QBOshKX';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zcmZpdHZ0aXlmdWtnbnpocXJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4OTA0NjgsImV4cCI6MjA5MjQ2NjQ2OH0.GRsF5TyNmWNXMlGhzDlrQ3YJeuUFQjJbHgEtZOUJsgQ';
 
   async function sbFetch(table, params) {
     let url = `${SUPABASE_URL}/rest/v1/${table}?${params}`;
