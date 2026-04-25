@@ -18,15 +18,15 @@
   }
 
   function currentPage() {
-    const p = window.location.pathname.split('/').pop() || 'index.html';
-    if (p === '' || p === 'index.html') return 'home';
-    if (p === 'about.html') return 'about';
-    if (p === 'projects.html') return 'projects';
-    if (p === 'publications.html') return 'publications';
-    if (p === 'media.html') return 'media';
-    if (p === 'blog.html') return 'blog';
-    return 'other';
-  }
+  const p = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+  if (p === '' || p === 'index') return 'home';
+  if (p === 'about') return 'about';
+  if (p === 'projects') return 'projects';
+  if (p === 'publications') return 'publications';
+  if (p === 'media') return 'media';
+  if (p === 'blog') return 'blog';
+  return 'other';
+}
 
   // ── PAGE CONTENT (all editable text) ────────────────
   async function loadPageContent() {
