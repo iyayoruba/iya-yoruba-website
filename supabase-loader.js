@@ -1,37 +1,26 @@
-// ── Supabase public content loader ───────────────────
+// ── Supabase public content loader v4 ────────────────
 (function () {
   const SUPABASE_URL = 'https://msrfitvtiyfukgnzhqrs.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zcmZpdHZ0aXlmdWtnbnpocXJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4OTA0NjgsImV4cCI6MjA5MjQ2NjQ2OH0.GRsF5TyNmWNXMlGhzDlrQ3YJeuUFQjJbHgEtZOUJsgQ';
 
-  // Core fetch — returns data array or empty array on any failure
   async function sbFetch(table, params) {
     try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/${table}?${params}`,
-        {
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Accept': 'application/json'
         }
-      );
-      if (!res.ok) {
-        console.warn('[Supabase] fetch error', table, res.status, await res.text());
-        return [];
-      }
+      });
+      if (!res.ok) { console.warn('[SB]', table, res.status); return []; }
       return await res.json();
-    } catch (e) {
-      console.warn('[Supabase] network error', table, e);
-      return [];
-    }
+    } catch (e) { console.warn('[SB] error', table, e); return []; }
   }
 
-  // Detect current page from URL
   function currentPage() {
     const p = window.location.pathname.split('/').pop() || 'index.html';
     if (p === '' || p === 'index.html') return 'home';
+    if (p === 'about.html') return 'about';
     if (p === 'projects.html') return 'projects';
     if (p === 'publications.html') return 'publications';
     if (p === 'media.html') return 'media';
@@ -39,19 +28,78 @@
     return 'other';
   }
 
-  // ── IMAGES (all pages) ──────────────────────────────
+  // ── PAGE CONTENT (all editable text) ────────────────
+  async function loadPageContent() {
+    const data = await sbFetch('page_content', 'select=content_key,value');
+    if (!data.length) return;
+
+    const map = {};
+    data.forEach(row => { map[row.content_key] = row.value; });
+
+    // Helper: set text of element by ID, fall back gracefully
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el && value) el.textContent = value;
+    }
+    function setHTML(id, value) {
+      const el = document.getElementById(id);
+      if (el && value) el.innerHTML = value;
+    }
+    function setAttr(id, attr, value) {
+      const el = document.getElementById(id);
+      if (el && value) el.setAttribute(attr, value);
+    }
+    function setAll(selector, value) {
+      document.querySelectorAll(selector).forEach(el => { if (value) el.textContent = value; });
+    }
+    function setAllHref(selector, value) {
+      document.querySelectorAll(selector).forEach(el => { if (value) el.href = value; });
+    }
+
+    // Footer — appears on every page
+    setText('footer-tagline-text', map['footer-tagline']);
+    const footerEmailEls = document.querySelectorAll('.footer-email a');
+    if (map['footer-email']) {
+      footerEmailEls.forEach(a => {
+        a.href = 'mailto:' + map['footer-email'];
+        a.textContent = map['footer-email'];
+      });
+    }
+
+    // Contact strip — homepage
+    setText('contact-strip-heading', map['contact-strip-heading']);
+    setText('contact-strip-text', map['contact-strip-text']);
+    const ctaBtn = document.getElementById('contact-strip-btn');
+    if (ctaBtn && map['contact-strip-email']) {
+      ctaBtn.href = 'mailto:' + map['contact-strip-email'];
+    }
+
+    // Hero — homepage
+    setText('hero-alias-text', map['hero-alias']);
+    setText('hero-roles-text', map['hero-roles']);
+    setText('hero-vertical-text', map['hero-tagline']);
+
+    // Homepage bio
+    setText('homepage-bio', map['homepage-bio']);
+
+    // Page hero intros (each inner page)
+    setText('page-intro-text', map[currentPage() + '-page-intro']);
+
+    // About page tagline
+    setText('about-tagline', map['about-page-intro']);
+  }
+
+  // ── IMAGES ──────────────────────────────────────────
   async function loadImages() {
     const data = await sbFetch('site_images', 'select=image_key,image_url');
     data.forEach(row => {
       if (!row.image_url) return;
-      // Match img by id
       const byId = document.getElementById(row.image_key);
       if (byId && byId.tagName === 'IMG') {
         byId.src = row.image_url;
         byId.style.background = 'none';
         byId.style.minHeight = 'auto';
       }
-      // Match img by data-book
       const byData = document.querySelector(`img[data-book="${row.image_key}"]`);
       if (byData) {
         byData.src = row.image_url;
@@ -61,35 +109,29 @@
     });
   }
 
-  // ── BIO (home + about) ──────────────────────────────
-  async function loadBio() {
-    const el = document.getElementById('homepage-bio');
-    if (!el) return;
-    const data = await sbFetch('page_content', 'select=value&content_key=eq.homepage-bio');
-    if (data[0] && data[0].value) el.textContent = data[0].value;
+  // ── TESTIMONIALS ────────────────────────────────────
+  async function loadTestimonials() {
+    const container = document.getElementById('testimonials-dynamic');
+    if (!container) return;
+    const data = await sbFetch('testimonials', 'select=*&is_active=eq.true&order=sort_order.asc');
+    if (!data.length) return;
+    container.innerHTML = data.map(t => `
+      <div class="testimonial">
+        <p>"${t.quote}"</p>
+        <p class="testimonial-attr">
+          ${t.author_name ? '<strong>' + t.author_name + '</strong> · ' : ''}${t.author_context || ''}
+        </p>
+      </div>
+    `).join('');
+    triggerReveal(container);
   }
 
-  // ── FOOTER EMAIL (all pages) ────────────────────────
-  async function loadFooterEmail() {
-    const links = document.querySelectorAll('.footer-email a');
-    if (!links.length) return;
-    const data = await sbFetch('page_content', 'select=value&content_key=eq.footer-email');
-    if (data[0] && data[0].value) {
-      links.forEach(a => {
-        a.href = 'mailto:' + data[0].value;
-        a.textContent = data[0].value;
-      });
-    }
-  }
-
-  // ── PROJECTS (home + projects page) ────────────────
+  // ── PROJECTS ────────────────────────────────────────
   async function loadProjects() {
     const data = await sbFetch('projects', 'select=*&is_active=eq.true&order=sort_order.asc');
     if (!data.length) return;
 
-    // Homepage list — look for existing div or create inside .project-list
-    const homeList = document.getElementById('projects-list-dynamic')
-      || document.querySelector('.project-list');
+    const homeList = document.getElementById('projects-list-dynamic') || document.querySelector('.project-list');
     if (homeList) {
       homeList.innerHTML = data.map((p, i) => `
         <div class="project-entry reveal${i > 0 ? ' reveal-delay-' + Math.min(i, 4) : ''}">
@@ -101,14 +143,12 @@
       triggerReveal(homeList);
     }
 
-    // Projects page — look for dynamic div or inject after page-hero
     const projPage = document.getElementById('projects-page-dynamic');
     if (projPage) {
       projPage.innerHTML = data.map((p, i) => buildProjectBlock(p, i)).join('');
       triggerReveal(projPage);
       return;
     }
-    // Fallback: if on projects page and no dynamic div, inject after page-hero
     if (currentPage() === 'projects') {
       const hero = document.querySelector('.page-hero');
       if (hero) {
@@ -121,14 +161,14 @@
     }
   }
 
-  function buildProjectBlock(p, i) {
+  function buildProjectBlock(p) {
     return `
       <div class="project-block">
         <div class="project-block-inner">
           <div class="project-img">
             ${p.image_url
               ? `<img src="${p.image_url}" alt="${p.name}"/>`
-              : `<div style="width:100%;height:100%;background:var(--cream-dark);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:3rem;color:var(--border)">${(p.name || '').substring(0, 2)}</div>`
+              : `<div style="width:100%;height:100%;background:var(--cream-dark);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:3rem;color:var(--border)">${(p.name||'').substring(0,2)}</div>`
             }
           </div>
           <div class="reveal">
@@ -142,15 +182,12 @@
     `;
   }
 
-  // ── BOOKS (publications page) ───────────────────────
+  // ── BOOKS ───────────────────────────────────────────
   async function loadBooks() {
     const data = await sbFetch('books', 'select=*&order=sort_order.asc');
     if (!data.length) return;
-
-    const grid = document.getElementById('books-grid-dynamic')
-      || document.querySelector('.books-grid');
+    const grid = document.getElementById('books-grid-dynamic') || document.querySelector('.books-grid');
     if (!grid) return;
-
     grid.innerHTML = data.map((book, i) => `
       <div class="book-card reveal${i > 0 ? ' reveal-delay-' + Math.min(i, 4) : ''}">
         <div class="book-cover">
@@ -174,15 +211,12 @@
     triggerReveal(grid);
   }
 
-  // ── MEDIA (media page) ──────────────────────────────
+  // ── MEDIA ───────────────────────────────────────────
   async function loadMedia() {
     const data = await sbFetch('media_coverage', 'select=*&order=sort_order.asc');
     if (!data.length) return;
-
-    const grid = document.getElementById('media-grid-dynamic')
-      || document.querySelector('.media-grid');
+    const grid = document.getElementById('media-grid-dynamic') || document.querySelector('.media-grid');
     if (!grid) return;
-
     grid.innerHTML = data.map((m, i) => `
       <div class="media-card reveal${i % 2 !== 0 ? ' reveal-delay-1' : ''}" data-type="${m.type || 'feature'}">
         <p class="media-card-type">${m.type || ''}</p>
@@ -198,44 +232,43 @@
     triggerReveal(grid);
   }
 
-  // ── BLOG POSTS (blog page) ──────────────────────────
+  // ── BLOG ────────────────────────────────────────────
   async function loadBlogPosts() {
     const data = await sbFetch('blog_posts', 'select=*&is_published=eq.true&order=published_at.desc');
     if (!data.length) return;
-
-    const container = document.getElementById('blog-posts-dynamic');
     const emptyState = document.querySelector('.blog-empty');
     if (emptyState) emptyState.style.display = 'none';
-
-    const target = container || (() => {
-      const el = document.createElement('div');
-      el.id = 'blog-posts-dynamic';
+    let container = document.getElementById('blog-posts-dynamic');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'blog-posts-dynamic';
+      container.className = 'blog-posts-grid';
       const section = document.querySelector('.section');
-      if (section) section.appendChild(el);
-      return el;
-    })();
-
-    target.innerHTML = data.map(post => `
-      <article class="card reveal" style="margin-bottom:1rem">
-        <p style="font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--terra);margin-bottom:.5rem">${post.category || ''}</p>
-        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;margin-bottom:.75rem">${post.title}</h2>
-        <div style="font-size:.95rem;line-height:1.8;color:var(--brown-mid)">${post.content || ''}</div>
-        <p style="font-size:.78rem;color:var(--muted);margin-top:1rem">
-          ${post.published_at ? new Date(post.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
-        </p>
+      if (section) section.appendChild(container);
+    }
+    container.innerHTML = data.map(post => `
+      <article class="blog-post-card reveal">
+        ${post.featured_image_url ? `<div class="blog-post-img"><img src="${post.featured_image_url}" alt="${post.title}"/></div>` : ''}
+        <div class="blog-post-body">
+          <div class="blog-post-meta">
+            ${post.category ? `<span class="blog-post-cat">${post.category}</span>` : ''}
+            <span class="blog-post-date">${post.published_at ? new Date(post.published_at).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : ''}</span>
+          </div>
+          <h2 class="blog-post-title">${post.title}</h2>
+          ${post.excerpt ? `<p class="blog-post-excerpt">${post.excerpt}</p>` : ''}
+          <div class="blog-post-content">${post.content || ''}</div>
+        </div>
       </article>
     `).join('');
-    triggerReveal(target);
+    triggerReveal(container);
   }
 
-  // ── REVEAL helper ───────────────────────────────────
+  // ── REVEAL ──────────────────────────────────────────
   function triggerReveal(container) {
     const els = container.querySelectorAll('.reveal');
-    if (!els.length) return;
     if (window._revealObserver) {
       els.forEach(el => window._revealObserver.observe(el));
     } else {
-      // Fallback: just make them visible
       els.forEach(el => el.classList.add('visible'));
     }
   }
@@ -243,9 +276,9 @@
   // ── RUN ─────────────────────────────────────────────
   function run() {
     const page = currentPage();
+    loadPageContent();
     loadImages();
-    loadBio();
-    loadFooterEmail();
+    if (page === 'about') loadTestimonials();
     if (page === 'home' || page === 'projects') loadProjects();
     if (page === 'publications') loadBooks();
     if (page === 'media') loadMedia();
@@ -257,5 +290,4 @@
   } else {
     run();
   }
-
 })();
