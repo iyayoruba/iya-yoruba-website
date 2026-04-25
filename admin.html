@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Admin — Ìyá Yorùbá</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
 :root {
@@ -258,12 +259,18 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 
     <!-- BLOG -->
     <div class="panel" id="panel-blog">
-      <div class="panel-header"><h2>Blog Posts</h2><p>Write and publish posts with featured images and rich text.</p></div>
+      <div class="panel-header"><h2>Blog Posts</h2><p>Full blog editor — images anywhere, rich formatting, links, quotes, and more.</p></div>
 
-      <div class="card">
-        <p style="font-weight:600;margin-bottom:1.25rem">New Post</p>
+      <div class="card" id="blog-editor-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+          <p style="font-weight:600" id="blog-editor-label">New Post</p>
+          <button class="btn btn-secondary btn-sm" id="blog-cancel-edit" onclick="cancelEditPost()" style="display:none">Cancel Edit</button>
+        </div>
+        <input type="hidden" id="bp-editing-id"/>
 
-        <div class="form-field"><label>Title</label><input id="bp-title" placeholder="Post title"/></div>
+        <div class="form-row">
+          <div class="form-field" style="grid-column:1/-1"><label>Title</label><input id="bp-title" placeholder="Post title" style="font-size:1rem;padding:.8rem 1rem;"/></div>
+        </div>
         <div class="form-row">
           <div class="form-field"><label>Category</label>
             <select id="bp-cat">
@@ -271,49 +278,39 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
               <option>Preservation</option><option>Research</option><option>Personal</option>
             </select>
           </div>
-          <div class="form-field"><label>Excerpt (short preview text)</label><input id="bp-excerpt" placeholder="One or two sentences shown in the post card"/></div>
+          <div class="form-field"><label>Excerpt (short preview shown on blog page)</label>
+            <input id="bp-excerpt" placeholder="One or two sentences — appears on the blog index card"/>
+          </div>
         </div>
 
         <div class="form-field">
-          <label>Featured Image</label>
+          <label>Featured Image <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(shown at top of post card on blog page)</span></label>
           <img id="bp-img-preview" class="featured-img-preview" src="" alt=""/>
-          <div class="img-upload-zone" id="bp-img-zone">
-            <input type="file" accept="image/*" onchange="previewBlogImage(this)"/>
+          <div class="img-upload-zone">
+            <input type="file" accept="image/*" onchange="previewFeaturedImage(this)" id="bp-img-input"/>
             <p class="upload-icon">📸</p>
             <p class="upload-text"><strong>Click to upload</strong> featured image</p>
-            <p class="upload-text" style="font-size:.78rem;margin-top:.25rem">Recommended: 1200×630px · JPG or PNG</p>
+            <p class="upload-text" style="font-size:.78rem;margin-top:.25rem">JPG, PNG, WEBP — Recommended 1200x630px</p>
           </div>
         </div>
 
         <div class="form-field">
-          <label>Content</label>
-          <div class="editor-wrap">
-            <div class="editor-toolbar">
-              <button class="editor-btn" onclick="fmt('bold')" title="Bold"><strong>B</strong></button>
-              <button class="editor-btn" onclick="fmt('italic')" title="Italic"><em>I</em></button>
-              <button class="editor-btn" onclick="fmt('underline')" title="Underline"><u>U</u></button>
-              <button class="editor-btn" onclick="fmt('insertUnorderedList')" title="Bullet list">&#8226; List</button>
-              <button class="editor-btn" onclick="fmt('insertOrderedList')" title="Numbered list">1. List</button>
-              <button class="editor-btn" onclick="fmtBlock('h2')" title="Heading">H2</button>
-              <button class="editor-btn" onclick="fmtBlock('p')" title="Paragraph">P</button>
-              <button class="editor-btn" onclick="fmt('removeFormat')" title="Clear formatting">Clear</button>
-            </div>
-            <div class="editor-area" id="bp-content" contenteditable="true" data-placeholder="Write your post here..."></div>
-          </div>
+          <label>Content <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(use the toolbar to format, insert images, add links, and more)</span></label>
+          <div id="bp-content-editor"></div>
+          <p style="font-size:.75rem;color:var(--muted);margin-top:.5rem">To insert an image inside the post: click the image icon in the toolbar and upload directly.</p>
         </div>
 
-        <div style="display:flex;gap:.75rem">
+        <div style="display:flex;gap:.75rem;margin-top:.5rem">
           <button class="btn btn-secondary" onclick="saveBlogPost(false)">Save Draft</button>
           <button class="btn btn-primary" onclick="saveBlogPost(true)">Publish</button>
         </div>
       </div>
 
-      <div style="margin-top:2rem">
+      <div style="margin-top:2.5rem">
         <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem">All Posts</h3>
         <div id="blog-list"><p style="font-size:.875rem;color:var(--muted)">No posts yet.</p></div>
       </div>
     </div>
-
     <!-- TESTIMONIALS -->
     <div class="panel" id="panel-testimonials">
       <div class="panel-header"><h2>Testimonials</h2><p>Add and manage student voices shown on the About page.</p></div>
@@ -447,8 +444,9 @@ function showPanel(id, btn) {
   if (btn) btn.classList.add('active');
   const loaders = {
     pages: loadPageContentAdmin,
+    blog: async () => { await initBlogEditor(); loadBlogPosts(); },
     images: loadImages, books: loadBooks, projects: loadProjects,
-    media: loadMedia, blog: loadBlogPosts, testimonials: loadTestimonials, bio: loadBio
+    media: loadMedia, testimonials: loadTestimonials, bio: loadBio
   };
   if (loaders[id]) loaders[id]();
 }
@@ -724,85 +722,235 @@ async function saveNewMedia() {
 }
 
 // ── BLOG ───────────────────────────────────────────────
-let _blogImageFile = null;
+let _ckEditor = null;
+let _featuredImageFile = null;
 
-function previewBlogImage(input) {
+// Initialize CKEditor when blog panel opens
+async function initBlogEditor() {
+  if (_ckEditor) return; // already initialized
+  try {
+    _ckEditor = await CKEDITOR.ClassicEditor.create(document.getElementById('bp-content-editor'), {
+      toolbar: {
+        items: [
+          'heading', '|',
+          'bold', 'italic', 'underline', 'strikethrough', '|',
+          'fontFamily', 'fontSize', 'fontColor', 'fontBackgroundColor', '|',
+          'link', '|',
+          'bulletedList', 'numberedList', 'todoList', '|',
+          'blockQuote', 'horizontalLine', '|',
+          'insertImage', 'mediaEmbed', '|',
+          'insertTable', '|',
+          'alignment', '|',
+          'outdent', 'indent', '|',
+          'undo', 'redo', '|',
+          'removeFormat', 'findAndReplace'
+        ],
+        shouldNotGroupWhenFull: false
+      },
+      image: {
+        toolbar: [
+          'imageTextAlternative', 'toggleImageCaption', '|',
+          'imageStyle:inline', 'imageStyle:block', 'imageStyle:side', '|',
+          'linkImage'
+        ],
+        upload: {
+          types: ['jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
+        }
+      },
+      fontFamily: {
+        options: [
+          'default',
+          'Cormorant Garamond, serif',
+          'DM Sans, sans-serif',
+          'Georgia, serif',
+          'Arial, sans-serif',
+          'Verdana, sans-serif',
+          'Courier New, monospace'
+        ]
+      },
+      fontSize: {
+        options: ['tiny', 'small', 'default', 'big', 'huge']
+      },
+      heading: {
+        options: [
+          { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+          { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+          { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+          { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+          { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' }
+        ]
+      },
+      link: {
+        addTargetToExternalLinks: true,
+        defaultProtocol: 'https://'
+      },
+      placeholder: 'Write your blog post here. Use the toolbar to format text, add headings, insert images, create links, and more...',
+      simpleUpload: {
+        uploadUrl: '__CUSTOM__'
+      }
+    });
+
+    // Override image upload to use Supabase Storage
+    _ckEditor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+      return {
+        upload: async () => {
+          const file = await loader.file;
+          const path = `blog-content-${Date.now()}-${Math.random().toString(36).slice(2)}.${file.name.split('.').pop()}`;
+          const { error } = await sb.storage.from('site-images').upload(path, file, { upsert: true });
+          if (error) throw new Error('Upload failed: ' + error.message);
+          const { data: { publicUrl } } = sb.storage.from('site-images').getPublicUrl(path);
+          return { default: publicUrl };
+        },
+        abort: () => {}
+      };
+    };
+  } catch (err) {
+    console.error('CKEditor init failed:', err);
+    // Fallback to basic textarea
+    const el = document.getElementById('bp-content-editor');
+    el.innerHTML = '<textarea id="bp-content-fallback" style="width:100%;min-height:300px;padding:1rem;border:1.5px solid var(--border);border-radius:2px;font-family:DM Sans,sans-serif;font-size:.9rem;resize:vertical" placeholder="Write your post here..."></textarea>';
+  }
+}
+
+function previewFeaturedImage(input) {
   const file = input.files[0]; if (!file) return;
-  _blogImageFile = file;
+  _featuredImageFile = file;
   const preview = document.getElementById('bp-img-preview');
   preview.src = URL.createObjectURL(file);
   preview.classList.add('show');
 }
 
-function fmt(cmd) { document.execCommand(cmd, false, null); document.getElementById('bp-content').focus(); }
-function fmtBlock(tag) { document.execCommand('formatBlock', false, tag); document.getElementById('bp-content').focus(); }
-
 async function saveBlogPost(publish) {
   const title = document.getElementById('bp-title').value.trim();
-  if (!title) { toast('Title required',true); return; }
-  toast(publish ? 'Publishing...' : 'Saving draft...');
+  if (!title) { toast('Title required', true); return; }
+  const editingId = document.getElementById('bp-editing-id').value;
+  toast(publish ? 'Publishing...' : 'Saving...');
 
-  let featuredImageUrl = null;
-  if (_blogImageFile) {
-    const path = `blog-${Date.now()}.${_blogImageFile.name.split('.').pop()}`;
-    const { error } = await sb.storage.from('site-images').upload(path, _blogImageFile, {upsert:true});
-    if (error) { toast('Image upload failed',true); return; }
-    const { data:{publicUrl} } = sb.storage.from('site-images').getPublicUrl(path);
-    featuredImageUrl = publicUrl;
+  // Get content from CKEditor or fallback textarea
+  let content = '';
+  if (_ckEditor) {
+    content = _ckEditor.getData();
+  } else {
+    const fallback = document.getElementById('bp-content-fallback');
+    content = fallback ? fallback.value : '';
   }
 
-  const { error } = await sb.from('blog_posts').insert({
+  // Upload featured image if new file selected
+  let featuredImageUrl = null;
+  const previewEl = document.getElementById('bp-img-preview');
+  if (_featuredImageFile) {
+    const path = `blog-featured-${Date.now()}.${_featuredImageFile.name.split('.').pop()}`;
+    const { error } = await sb.storage.from('site-images').upload(path, _featuredImageFile, { upsert: true });
+    if (error) { toast('Featured image upload failed', true); return; }
+    const { data: { publicUrl } } = sb.storage.from('site-images').getPublicUrl(path);
+    featuredImageUrl = publicUrl;
+  } else if (previewEl.src && !previewEl.src.startsWith('blob:') && previewEl.src !== window.location.href && previewEl.classList.contains('show')) {
+    featuredImageUrl = previewEl.src;
+  }
+
+  const postData = {
     title,
-    content: document.getElementById('bp-content').innerHTML,
+    content,
     excerpt: document.getElementById('bp-excerpt').value,
     category: document.getElementById('bp-cat').value,
     featured_image_url: featuredImageUrl,
     is_published: publish,
     published_at: publish ? new Date().toISOString() : null
-  });
+  };
 
-  if (error) { toast('Save failed: '+error.message, true); return; }
+  let err;
+  if (editingId) {
+    const r = await sb.from('blog_posts').update(postData).eq('id', editingId);
+    err = r.error;
+  } else {
+    const r = await sb.from('blog_posts').insert(postData);
+    err = r.error;
+  }
+
+  if (err) { toast('Save failed: ' + err.message, true); return; }
   toast(publish ? 'Post published!' : 'Draft saved!');
-  document.getElementById('bp-title').value='';
-  document.getElementById('bp-excerpt').value='';
-  document.getElementById('bp-content').innerHTML='';
-  document.getElementById('bp-img-preview').classList.remove('show');
-  _blogImageFile = null;
+  resetBlogEditor();
   loadBlogPosts();
 }
 
+function resetBlogEditor() {
+  document.getElementById('bp-title').value = '';
+  document.getElementById('bp-excerpt').value = '';
+  if (_ckEditor) _ckEditor.setData('');
+  const prev = document.getElementById('bp-img-preview');
+  prev.src = ''; prev.classList.remove('show');
+  document.getElementById('bp-editing-id').value = '';
+  document.getElementById('blog-editor-label').textContent = 'New Post';
+  document.getElementById('blog-cancel-edit').style.display = 'none';
+  _featuredImageFile = null;
+}
+
+function cancelEditPost() { resetBlogEditor(); }
+
+async function editPost(id) {
+  const { data, error } = await sb.from('blog_posts').select('*').eq('id', id).single();
+  if (error || !data) { toast('Could not load post', true); return; }
+
+  // Make sure editor is initialized before loading content
+  await initBlogEditor();
+
+  document.getElementById('bp-title').value = data.title || '';
+  document.getElementById('bp-excerpt').value = data.excerpt || '';
+  document.getElementById('bp-editing-id').value = data.id;
+  document.getElementById('blog-editor-label').textContent = 'Editing: ' + data.title;
+  document.getElementById('blog-cancel-edit').style.display = 'inline-flex';
+
+  if (_ckEditor) _ckEditor.setData(data.content || '');
+
+  const catEl = document.getElementById('bp-cat');
+  for (let i = 0; i < catEl.options.length; i++) {
+    if (catEl.options[i].value === data.category) { catEl.selectedIndex = i; break; }
+  }
+
+  if (data.featured_image_url) {
+    const prev = document.getElementById('bp-img-preview');
+    prev.src = data.featured_image_url;
+    prev.classList.add('show');
+  }
+
+  document.getElementById('blog-editor-card').scrollIntoView({ behavior: 'smooth' });
+  toast('Post loaded for editing.');
+}
+
 async function loadBlogPosts() {
-  const { data } = await sb.from('blog_posts').select('*').order('created_at', {ascending:false});
+  const { data } = await sb.from('blog_posts').select('*').order('created_at', { ascending: false });
   const el = document.getElementById('blog-list');
-  if (!data||!data.length) { el.innerHTML='<p style="font-size:.875rem;color:var(--muted)">No posts yet.</p>'; return; }
-  el.innerHTML = data.map(p=>`
+  if (!data || !data.length) { el.innerHTML = '<p style="font-size:.875rem;color:var(--muted)">No posts yet.</p>'; return; }
+  el.innerHTML = data.map(p => `
     <div class="card" style="margin-bottom:.75rem">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem">
         <div style="display:flex;align-items:center;gap:1rem">
-          ${p.featured_image_url?`<img src="${p.featured_image_url}" style="width:60px;height:60px;object-fit:cover;border-radius:2px;flex-shrink:0" alt=""/>` : ''}
+          ${p.featured_image_url ? `<img src="${p.featured_image_url}" style="width:60px;height:60px;object-fit:cover;border-radius:2px;flex-shrink:0;border:1px solid var(--border)" alt=""/>` : '<div style="width:60px;height:60px;background:var(--cream-dark);border-radius:2px;flex-shrink:0;border:1px solid var(--border)"></div>'}
           <div>
-            <p style="font-weight:600">${p.title}</p>
-            <p style="font-size:.8rem;color:var(--muted)">${p.category||''} · <span class="badge ${p.is_published?'badge-pub':'badge-draft'}">${p.is_published?'Published':'Draft'}</span></p>
+            <p style="font-weight:600;margin-bottom:.2rem">${p.title}</p>
+            <p style="font-size:.8rem;color:var(--muted)">${p.category || ''} &nbsp;·&nbsp; <span class="badge ${p.is_published ? 'badge-pub' : 'badge-draft'}">${p.is_published ? 'Published' : 'Draft'}</span></p>
           </div>
         </div>
         <div style="display:flex;gap:.5rem;flex-shrink:0">
-          ${!p.is_published?`<button class="btn btn-primary btn-sm" onclick="publishPost('${p.id}')">Publish</button>`:''}
+          <button class="btn btn-secondary btn-sm" onclick="editPost('${p.id}')">Edit</button>
+          ${!p.is_published ? `<button class="btn btn-primary btn-sm" onclick="publishPost('${p.id}')">Publish</button>` : ''}
           <button class="btn btn-danger btn-sm" onclick="deletePost('${p.id}')">Delete</button>
         </div>
       </div>
     </div>
   `).join('');
 }
+
 async function publishPost(id) {
-  await sb.from('blog_posts').update({is_published:true, published_at:new Date().toISOString()}).eq('id',id);
+  await sb.from('blog_posts').update({ is_published: true, published_at: new Date().toISOString() }).eq('id', id);
   toast('Post published!'); loadBlogPosts();
 }
+
 async function deletePost(id) {
   if (!confirm('Delete this post?')) return;
-  await sb.from('blog_posts').delete().eq('id',id);
+  await sb.from('blog_posts').delete().eq('id', id);
   toast('Post deleted.'); loadBlogPosts();
 }
-
 // ── TESTIMONIALS ───────────────────────────────────────
 async function loadTestimonials() {
   const { data } = await sb.from('testimonials').select('*').order('sort_order');
