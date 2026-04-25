@@ -113,13 +113,19 @@
   async function loadTestimonials() {
     const container = document.getElementById('testimonials-dynamic');
     if (!container) return;
-    const data = await sbFetch('testimonials', 'select=*&is_active=eq.true&order=sort_order.asc');
+
+    // Try with is_active filter first, fall back to all if empty
+    let data = await sbFetch('testimonials', 'select=*&is_active=eq.true&order=sort_order.asc');
+    if (!data.length) {
+      data = await sbFetch('testimonials', 'select=*&order=sort_order.asc');
+    }
     if (!data.length) return;
+
     container.innerHTML = data.map(t => `
       <div class="testimonial">
         <p>"${t.quote}"</p>
         <p class="testimonial-attr">
-          ${t.author_name ? '<strong>' + t.author_name + '</strong> · ' : ''}${t.author_context || ''}
+          ${t.author_name ? '<strong>' + t.author_name + '</strong> &nbsp;&middot;&nbsp; ' : ''}${t.author_context || ''}
         </p>
       </div>
     `).join('');
@@ -282,7 +288,8 @@
     const page = currentPage();
     loadPageContent();
     loadImages();
-    if (page === 'about') loadTestimonials();
+    // Load testimonials whenever the container exists on the page
+    if (document.getElementById('testimonials-dynamic')) loadTestimonials();
     if (page === 'home' || page === 'projects') loadProjects();
     if (page === 'publications') loadBooks();
     if (page === 'media') loadMedia();
