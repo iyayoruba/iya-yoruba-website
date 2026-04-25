@@ -880,7 +880,8 @@ async function editPost(id) {
   if (error || !data) { toast('Could not load post', true); return; }
 
   // Make sure editor is initialized before loading content
-  await initBlogEditor();
+ await initBlogEditor();
+await new Promise(resolve => setTimeout(resolve, 150));
 
   document.getElementById('bp-title').value = data.title || '';
   document.getElementById('bp-excerpt').value = data.excerpt || '';
