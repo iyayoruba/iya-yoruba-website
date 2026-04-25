@@ -57,7 +57,10 @@
     }
 
     // Footer — appears on every page
-    setText('footer-tagline-text', map['footer-tagline']);
+    const taglineSpan = document.getElementById('footer-tagline-text');
+const taglineEl = document.querySelector('.footer-tagline');
+if (taglineSpan && map['footer-tagline']) taglineSpan.textContent = map['footer-tagline'];
+else if (taglineEl && map['footer-tagline']) taglineEl.textContent = map['footer-tagline'];
     const footerEmailEls = document.querySelectorAll('.footer-email a');
     if (map['footer-email']) {
       footerEmailEls.forEach(a => {
