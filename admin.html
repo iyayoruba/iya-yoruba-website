@@ -755,16 +755,8 @@ async function initBlogEditor() {
       image: {
         toolbar: [
           'imageTextAlternative', '|',
-          'imageStyle:inline', 'imageStyle:block', 'imageStyle:side', '|',
-          'resizeImage:25', 'resizeImage:50', 'resizeImage:75', 'resizeImage:original'
-        ],
-        resizeOptions: [
-          { name: 'resizeImage:original', value: null, label: 'Original' },
-          { name: 'resizeImage:25', value: '25', label: '25%' },
-          { name: 'resizeImage:50', value: '50', label: '50%' },
-          { name: 'resizeImage:75', value: '75', label: '75%' }
-        ],
-        resizeUnit: '%'
+          'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'
+        ]
       },
       heading: {
         options: [
@@ -888,7 +880,8 @@ async function editPost(id) {
   if (error || !data) { toast('Could not load post', true); return; }
 
   // Make sure editor is initialized before loading content
-  await initBlogEditor();
+ await initBlogEditor();
+await new Promise(resolve => setTimeout(resolve, 150));
 
   document.getElementById('bp-title').value = data.title || '';
   document.getElementById('bp-excerpt').value = data.excerpt || '';

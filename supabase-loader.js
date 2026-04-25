@@ -18,15 +18,15 @@
   }
 
   function currentPage() {
-    const p = window.location.pathname.split('/').pop() || 'index.html';
-    if (p === '' || p === 'index.html') return 'home';
-    if (p === 'about.html') return 'about';
-    if (p === 'projects.html') return 'projects';
-    if (p === 'publications.html') return 'publications';
-    if (p === 'media.html') return 'media';
-    if (p === 'blog.html') return 'blog';
-    return 'other';
-  }
+  const p = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+  if (p === '' || p === 'index') return 'home';
+  if (p === 'about') return 'about';
+  if (p === 'projects') return 'projects';
+  if (p === 'publications') return 'publications';
+  if (p === 'media') return 'media';
+  if (p === 'blog') return 'blog';
+  return 'other';
+}
 
   // ── PAGE CONTENT (all editable text) ────────────────
   async function loadPageContent() {
@@ -57,7 +57,10 @@
     }
 
     // Footer — appears on every page
-    setText('footer-tagline-text', map['footer-tagline']);
+    const taglineSpan = document.getElementById('footer-tagline-text');
+const taglineEl = document.querySelector('.footer-tagline');
+if (taglineSpan && map['footer-tagline']) taglineSpan.textContent = map['footer-tagline'];
+else if (taglineEl && map['footer-tagline']) taglineEl.textContent = map['footer-tagline'];
     const footerEmailEls = document.querySelectorAll('.footer-email a');
     if (map['footer-email']) {
       footerEmailEls.forEach(a => {
@@ -234,39 +237,35 @@
 
   // ── BLOG ────────────────────────────────────────────
   async function loadBlogPosts() {
-    const data = await sbFetch('blog_posts', 'select=id,title,excerpt,category,featured_image_url,published_at&is_published=eq.true&order=published_at.desc');
-    const container = document.getElementById('blog-posts-dynamic');
-    if (!container) return;
+    const data = await sbFetch('blog_posts', 'select=*&is_published=eq.true&order=published_at.desc');
     if (!data.length) return;
-
-    // Hide empty state
-    const emptyState = container.querySelector('.blog-empty');
+    const emptyState = document.querySelector('.blog-empty');
     if (emptyState) emptyState.style.display = 'none';
-
-    container.innerHTML = data.map(function(post, i) {
-      var date = post.published_at ? new Date(post.published_at) : null;
-      var dateStr = date ? date.toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}) : '';
-      var postUrl = 'post.html?id=' + post.id;
-      return '<a href="' + postUrl + '" class="blog-card reveal' + (i > 0 ? ' reveal-delay-' + Math.min(i, 4) : '') + '">' +
-        '<div class="blog-card-img">' +
-          (post.featured_image_url
-            ? '<img src="' + post.featured_image_url + '" alt="' + post.title + '" loading="lazy"/>'
-            : '<div class="blog-card-img-placeholder">' + ((post.title || '').charAt(0)) + '</div>'
-          ) +
-        '</div>' +
-        '<div class="blog-card-body">' +
-          '<div class="blog-card-meta">' +
-            (post.category ? '<span class="blog-card-cat">' + post.category + '</span>' : '') +
-            (dateStr ? '<span class="blog-card-date">' + dateStr + '</span>' : '') +
-          '</div>' +
-          '<h2 class="blog-card-title">' + post.title + '</h2>' +
-          (post.excerpt ? '<p class="blog-card-excerpt">' + post.excerpt + '</p>' : '') +
-          '<div class="blog-card-footer"><span class="blog-read-more">Read post &rarr;</span></div>' +
-        '</div>' +
-        '</a>';
-    }).join('');
+    let container = document.getElementById('blog-posts-dynamic');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'blog-posts-dynamic';
+      container.className = 'blog-posts-grid';
+      const section = document.querySelector('.section');
+      if (section) section.appendChild(container);
+    }
+    container.innerHTML = data.map(post => `
+      <article class="blog-post-card reveal">
+        ${post.featured_image_url ? `<div class="blog-post-img"><img src="${post.featured_image_url}" alt="${post.title}"/></div>` : ''}
+        <div class="blog-post-body">
+          <div class="blog-post-meta">
+            ${post.category ? `<span class="blog-post-cat">${post.category}</span>` : ''}
+            <span class="blog-post-date">${post.published_at ? new Date(post.published_at).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : ''}</span>
+          </div>
+          <h2 class="blog-post-title">${post.title}</h2>
+          ${post.excerpt ? `<p class="blog-post-excerpt">${post.excerpt}</p>` : ''}
+          <div class="blog-post-content">${post.content || ''}</div>
+        </div>
+      </article>
+    `).join('');
     triggerReveal(container);
   }
+
   // ── REVEAL ──────────────────────────────────────────
   function triggerReveal(container) {
     const els = container.querySelectorAll('.reveal');
