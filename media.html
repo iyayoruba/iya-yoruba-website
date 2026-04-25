@@ -28,9 +28,7 @@
       </div>
     </li>
   </ul>
-  <button class="nav-hamburger" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
+  <button class="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
 </nav>
 <nav class="mobile-nav">
   <a href="index.html">Home</a>
@@ -49,28 +47,31 @@
 <div class="page-hero">
   <div class="section-inner">
     <h1>Media Coverage.</h1>
-    <p>Press interviews, radio appearances, and features on language preservation, cultural advocacy, and the work.</p>
+    <p id="page-intro-text">Press interviews, radio appearances, and features on language preservation, cultural advocacy, and the work.</p>
   </div>
 </div>
 <section class="section">
   <div class="section-inner">
-    <div class="filter-tabs" style="margin-bottom:2.5rem">
+    <div class="filter-tabs">
       <button class="filter-tab active" data-filter="all">All</button>
       <button class="filter-tab" data-filter="radio">Radio</button>
       <button class="filter-tab" data-filter="interview">Interview</button>
       <button class="filter-tab" data-filter="profile">Profile</button>
       <button class="filter-tab" data-filter="feature">Feature</button>
     </div>
-    <div class="media-grid" id="media-grid-dynamic"><!-- Media loads from Supabase --></div>
+    <div class="media-grid" id="media-grid-dynamic">
+      <!-- loaded from Supabase -->
+    </div>
   </div>
 </section>
+
 </main>
 <footer>
   <div class="footer-inner">
     <div>
       <p class="footer-name">Damilola Adebonojo</p>
-      <p class="footer-tagline">Building the infrastructure African languages need to survive and thrive — through education, digital archives, and cultural preservation.</p>
-      <p class="footer-email"><a href="mailto:damilola.adebonojo@uga.edu">damilola.adebonojo@uga.edu</a></p>
+      <p class="footer-tagline"><span id="footer-tagline-text">Building the infrastructure African languages need to survive and thrive.</span></p>
+      <p class="footer-email" style="margin-top:1rem"><a href="mailto:damilola.adebonojo@uga.edu">damilola.adebonojo@uga.edu</a></p>
     </div>
     <div class="footer-col">
       <h5>Pages</h5>
