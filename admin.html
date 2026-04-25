@@ -859,8 +859,11 @@ async function saveBlogPost(publish) {
 function resetBlogEditor() {
   document.getElementById('bp-title').value = '';
   document.getElementById('bp-excerpt').value = '';
-  if (_ckEditor) {
-    _ckEditor.setData('');
+    if (_ckEditor) {
+    try {
+      _ckEditor.setData(data.content || '');
+    } catch(e) {
+      setTimeout(() => _ckEditor.setData(data.content || ''), 200);
   } else {
     const fallback = document.getElementById('bp-content-fallback');
     if (fallback) fallback.value = '';
