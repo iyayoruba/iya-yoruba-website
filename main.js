@@ -2,7 +2,7 @@
 (function(){
   var h = new Date().getHours();
   var en = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  var yo = h < 12 ? 'Ẹ káàárọ̀' : h < 17 ? 'Ẹ káàsán' : 'Ẹ káalẹ́';
+  var yo = h < 12 ? 'Ẹ káàárọ̀' : h < 17 ? 'Ẹ káàsán' : 'Ẹ káàlẹ̀';
   var el = document.getElementById('greeting');
   if (el) el.innerHTML = en + '. &nbsp;<em>' + yo + '.</em>';
 })();

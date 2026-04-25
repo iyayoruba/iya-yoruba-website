@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title id="post-page-title">Blog Post — Ìyá Yorùbá</title>
+<meta name="description" id="post-meta-desc" content="A blog post by Damilola Adebonojo (Ìyá Yorùbá)."/>
+<meta property="og:type" content="article"/>
+<meta property="og:site_name" content="Ìyá Yorùbá"/>
+<meta property="og:title" id="og-title" content="Blog Post — Ìyá Yorùbá"/>
+<meta property="og:description" id="og-desc" content="A blog post by Damilola Adebonojo."/>
+<meta property="og:image" id="og-image" content="https://iyayoruba.com/og-image.jpg"/>
+<meta property="og:url" id="og-url" content="https://iyayoruba.com/post"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@iyayoruba"/>
+<meta name="twitter:title" id="tw-title" content="Blog Post — Ìyá Yorùbá"/>
+<meta name="twitter:image" id="tw-image" content="https://iyayoruba.com/og-image.jpg"/>
+<link rel="stylesheet" href="style.css"/>
+<style>
+/* POST PAGE */
+.post-container {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 0 5%;
+}
+
+.post-header {
+  padding: 60px 0 40px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 3rem;
+}
+
+.post-meta-top {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+
+.post-cat-badge {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--terra);
+  background: var(--terra-pale);
+  padding: .25rem .7rem;
+  border-radius: 2px;
+}
+
+.post-date-display {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+.post-date-display .date-day {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--brown);
+  line-height: 1;
+}
+
+.post-date-display .date-month-year {
+  display: flex;
+  flex-direction: column;
+  font-size: .78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.post-date-display .date-separator {
+  width: 1px;
+  height: 2rem;
+  background: var(--border);
+  margin: 0 .5rem;
+}
+
+.post-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 600;
+  color: var(--brown);
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+}
+
+.post-excerpt {
+  font-size: 1.15rem;
+  color: var(--muted);
+  line-height: 1.75;
+  font-style: italic;
+}
+
+.post-featured-img {
+  width: 100%;
+  border-radius: 2px;
+  margin-bottom: 3rem;
+  display: block;
+  max-height: 500px;
+  object-fit: cover;
+}
+
+/* Post content typography */
+.post-content {
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: var(--brown-mid);
+}
+.post-content p { margin-bottom: 1.5rem; }
+.post-content h1, .post-content h2, .post-content h3, .post-content h4 {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--brown);
+  margin: 2.5rem 0 1rem;
+  line-height: 1.2;
+}
+.post-content h2 { font-size: 1.9rem; font-weight: 600; }
+.post-content h3 { font-size: 1.5rem; font-weight: 600; }
+.post-content h4 { font-size: 1.2rem; font-weight: 600; }
+.post-content blockquote {
+  border-left: 3px solid var(--terra);
+  margin: 2rem 0;
+  padding: 1rem 1.5rem;
+  background: var(--terra-pale);
+  border-radius: 0 2px 2px 0;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--brown);
+}
+.post-content ul, .post-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.post-content li { margin-bottom: .5rem; }
+.post-content ul { list-style: disc; }
+.post-content ol { list-style: decimal; }
+.post-content a {
+  color: var(--terra);
+  border-bottom: 1px solid var(--terra-pale);
+  text-decoration: none;
+  transition: border-color .2s;
+}
+.post-content a:hover { border-color: var(--terra); }
+.post-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 2px;
+  margin: 1.5rem 0;
+  display: block;
+}
+.post-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+.post-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: .9rem;
+}
+.post-content th, .post-content td {
+  padding: .65rem 1rem;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+.post-content th { background: var(--cream-dark); font-weight: 600; }
+
+/* Share section */
+.post-share {
+  margin-top: 4rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--border);
+}
+.post-share h3 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+.share-buttons {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem 1.1rem;
+  border-radius: 2px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--brown);
+  text-decoration: none;
+}
+.share-btn:hover { border-color: var(--terra); color: var(--terra); }
+.share-btn.copied { background: var(--success, #2E7D32); color: #fff; border-color: var(--success, #2E7D32); }
+
+/* Author block */
+.post-author {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: var(--cream-dark);
+  border-radius: 2px;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+.post-author-img {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--border);
+}
+.post-author-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--brown);
+  margin-bottom: .3rem;
+}
+.post-author-bio {
+  font-size: .875rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* Back link */
+.post-back {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .82rem;
+  color: var(--muted);
+  margin-bottom: 2rem;
+  transition: color .2s;
+  text-decoration: none;
+}
+.post-back:hover { color: var(--terra); }
+
+/* Loading state */
+.post-loading {
+  text-align: center;
+  padding: 5rem 0;
+  color: var(--muted);
+}
+
+/* Mobile */
+@media(max-width: 768px) {
+  .post-title { font-size: 2rem; }
+  .post-author { flex-direction: column; }
+  .share-buttons { gap: .5rem; }
+  .share-btn { font-size: .75rem; padding: .5rem .9rem; }
+}
+</style>
+</head>
+<body class="page">
+
+<nav class="nav">
+  <a href="index.html" class="nav-brand">Ìyá <em>Yorùbá</em></a>
+  <ul class="nav-links">
+    <li class="nav-item"><a href="index.html">Home</a></li>
+    <li class="nav-item"><a href="about.html">About</a></li>
+    <li class="nav-item">
+      <a href="publications.html">Publications</a>
+      <div class="nav-dropdown">
+        <a href="publications.html#books">Books</a>
+        <a href="publications.html#research">Research</a>
+      </div>
+    </li>
+    <li class="nav-item"><a href="projects.html">Projects</a></li>
+    <li class="nav-item">
+      <a href="#">Links</a>
+      <div class="nav-dropdown">
+        <a href="blog.html">Blog</a>
+        <a href="media.html">Media Coverage</a>
+      </div>
+    </li>
+  </ul>
+  <button class="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+</nav>
+<nav class="mobile-nav">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="publications.html">Publications</a>
+  <div class="mobile-sub">
+    <a href="publications.html#books">Books</a>
+    <a href="publications.html#research">Research</a>
+  </div>
+  <a href="projects.html">Projects</a>
+  <a href="blog.html">Blog</a>
+  <a href="media.html">Media Coverage</a>
+</nav>
+
+<main>
+  <div class="post-container" style="padding-top: var(--nav-h);">
+
+    <a href="blog.html" class="post-back" style="margin-top:2rem;display:inline-flex;">
+      &larr; Back to Blog
+    </a>
+
+    <div id="post-loading" class="post-loading">
+      <p>Loading post...</p>
+    </div>
+
+    <article id="post-article" style="display:none">
+
+      <header class="post-header">
+        <div class="post-meta-top">
+          <span class="post-cat-badge" id="post-cat"></span>
+          <div class="post-date-display">
+            <span class="date-separator"></span>
+            <span class="date-day" id="post-date-day"></span>
+            <span class="date-month-year" id="post-date-month-year"></span>
+          </div>
+        </div>
+        <h1 class="post-title" id="post-title-el"></h1>
+        <p class="post-excerpt" id="post-excerpt-el"></p>
+      </header>
+
+      <img id="post-featured-img" class="post-featured-img" src="" alt="" style="display:none"/>
+
+      <div class="post-content" id="post-content-el"></div>
+
+      <!-- Share -->
+      <div class="post-share">
+        <h3>Share this post</h3>
+        <div class="share-buttons">
+          <button class="share-btn" onclick="copyLink(this)">
+            🔗 Copy Link
+          </button>
+          <a class="share-btn" id="share-twitter" href="#" target="_blank" rel="noopener">
+            𝕏 Share on X
+          </a>
+          <a class="share-btn" id="share-linkedin" href="#" target="_blank" rel="noopener">
+            in Share on LinkedIn
+          </a>
+          <a class="share-btn" id="share-whatsapp" href="#" target="_blank" rel="noopener">
+            💬 Share on WhatsApp
+          </a>
+          <a class="share-btn" id="share-facebook" href="#" target="_blank" rel="noopener">
+            f Share on Facebook
+          </a>
+        </div>
+      </div>
+
+      <!-- Author -->
+      <div class="post-author">
+        <img class="post-author-img" id="author-img" src="" alt="Damilola Adebonojo"/>
+        <div>
+          <p class="post-author-name">Damilola Adebonojo</p>
+          <p class="post-author-bio">Founder of Alámọ̀já Languages, cultural custodian, and PhD candidate in Comparative Literature at the University of Georgia. Building the infrastructure African languages need to survive.</p>
+        </div>
+      </div>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <p class="footer-name">Damilola Adebonojo</p>
+      <p class="footer-tagline"><span id="footer-tagline-text">Building the infrastructure African languages need to survive and thrive.</span></p>
+      <p class="footer-email" style="margin-top:1rem"><a href="mailto:damilola.adebonojo@uga.edu">damilola.adebonojo@uga.edu</a></p>
+    </div>
+    <div class="footer-col">
+      <h5>Pages</h5>
+      <ul>
+        <li><a href="about.html">About</a></li>
+        <li><a href="publications.html">Publications</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="media.html">Media Coverage</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Initiatives</h5>
+      <ul>
+        <li><a href="https://yorubatexts.com" target="_blank" rel="noopener">YorubaTexts</a></li>
+        <li><a href="https://alamojalanguages.com" target="_blank" rel="noopener">Alámọ̀já Languages</a></li>
+        <li><a href="https://yoruversity.com" target="_blank" rel="noopener">Yoruversity</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 Damilola Adebonojo (Ìyá Yorùbá). All rights reserved.</p>
+    <div class="footer-socials">
+      <a href="https://www.instagram.com/iya_yoruba/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.linkedin.com/in/iyayoruba/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://www.x.com/iyayoruba" target="_blank" rel="noopener">X</a>
+      <a href="https://www.threads.com/@iya_yoruba" target="_blank" rel="noopener">Threads</a>
+    </div>
+  </div>
+</footer>
+
+<script src="supabase-loader.js"></script>
+<script src="main.js"></script>
+<script>
+const SUPABASE_URL = 'https://msrfitvtiyfukgnzhqrs.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zcmZpdHZ0aXlmdWtnbnpocXJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4OTA0NjgsImV4cCI6MjA5MjQ2NjQ2OH0.GRsF5TyNmWNXMlGhzDlrQ3YJeuUFQjJbHgEtZOUJsgQ';
+
+async function loadPost() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (!id) { document.getElementById('post-loading').innerHTML = '<p>Post not found.</p>'; return; }
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/blog_posts?id=eq.${id}&is_published=eq.true&select=*`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  });
+  const data = await res.json();
+  const post = data[0];
+
+  if (!post) { document.getElementById('post-loading').innerHTML = '<p>Post not found.</p>'; return; }
+
+  // Set page metadata
+  document.getElementById('post-page-title').textContent = post.title + ' — Ìyá Yorùbá';
+  document.getElementById('post-meta-desc').content = post.excerpt || post.title;
+  document.getElementById('og-title').content = post.title;
+  document.getElementById('og-desc').content = post.excerpt || '';
+  document.getElementById('tw-title').content = post.title;
+  const postUrl = 'https://iyayoruba.com/post?id=' + id;
+  document.getElementById('og-url').content = postUrl;
+  if (post.featured_image_url) {
+    document.getElementById('og-image').content = post.featured_image_url;
+    document.getElementById('tw-image').content = post.featured_image_url;
+  }
+
+  // Render date — fancy split format
+  const date = post.published_at ? new Date(post.published_at) : new Date();
+  const day = date.getDate();
+  const month = date.toLocaleDateString('en-GB', { month: 'long' });
+  const year = date.getFullYear();
+  document.getElementById('post-date-day').textContent = day;
+  document.getElementById('post-date-month-year').innerHTML = `<span>${month}</span><span>${year}</span>`;
+
+  // Fill content
+  document.getElementById('post-cat').textContent = post.category || '';
+  document.getElementById('post-title-el').textContent = post.title;
+  document.getElementById('post-excerpt-el').textContent = post.excerpt || '';
+  document.getElementById('post-content-el').innerHTML = post.content || '';
+
+  if (post.featured_image_url) {
+    const img = document.getElementById('post-featured-img');
+    img.src = post.featured_image_url;
+    img.alt = post.title;
+    img.style.display = 'block';
+  }
+
+  // Load author photo if available
+  const imgRes = await fetch(`${SUPABASE_URL}/rest/v1/site_images?image_key=eq.about-photo&select=image_url`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  });
+  const imgData = await imgRes.json();
+  if (imgData[0] && imgData[0].image_url) {
+    document.getElementById('author-img').src = imgData[0].image_url;
+  }
+
+  // Set up share links
+  const encodedUrl = encodeURIComponent(postUrl);
+  const encodedTitle = encodeURIComponent(post.title);
+  document.getElementById('share-twitter').href = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}&via=iyayoruba`;
+  document.getElementById('share-linkedin').href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+  document.getElementById('share-whatsapp').href = `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`;
+  document.getElementById('share-facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+
+  // Show article
+  document.getElementById('post-loading').style.display = 'none';
+  document.getElementById('post-article').style.display = 'block';
+}
+
+function copyLink(btn) {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    btn.textContent = '✓ Link Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '🔗 Copy Link';
+      btn.classList.remove('copied');
+    }, 2500);
+  });
+}
+
+// Add JSON-LD structured data for Google
+function addStructuredData(post) {
+  const script = document.createElement('script');
+  script.type = 'application/ld+json';
+  script.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.title,
+    "description": post.excerpt || '',
+    "image": post.featured_image_url || '',
+    "datePublished": post.published_at,
+    "author": {
+      "@type": "Person",
+      "name": "Damilola Adebonojo",
+      "url": "https://iyayoruba.com/about"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Ìyá Yorùbá",
+      "url": "https://iyayoruba.com"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://iyayoruba.com/post?id=" + new URLSearchParams(window.location.search).get('id')
+    }
+  });
+  document.head.appendChild(script);
+}
+
+loadPost();
+</script>
+</body>
+</html>
